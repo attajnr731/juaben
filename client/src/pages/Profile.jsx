@@ -12,7 +12,53 @@ import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettin
 
 const API_BASE = "https://juaben.onrender.com/api";
 
-// ── Generic editable field (name, email, phone) ──────────────────────────────
+// ── Defined OUTSIDE any other component so it's never recreated on re-render ──
+const PasswordInput = ({
+  value,
+  show,
+  onToggle,
+  onChange,
+  placeholder,
+  autoFocus,
+}) => (
+  <div className="flex items-center border-2 border-gray-200 focus-within:border-[#1a3a6e] bg-white transition-colors">
+    <input
+      autoFocus={autoFocus}
+      type={show ? "text" : "password"}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      className="flex-1 outline-none px-3 py-2.5 text-sm text-gray-700 placeholder-gray-300 bg-transparent"
+    />
+    <button
+      type="button"
+      onClick={onToggle}
+      className="pr-3 text-gray-400 hover:text-[#1a3a6e] transition-colors"
+    >
+      {show ? (
+        <VisibilityOffOutlinedIcon style={{ fontSize: 17 }} />
+      ) : (
+        <VisibilityOutlinedIcon style={{ fontSize: 17 }} />
+      )}
+    </button>
+  </div>
+);
+
+const Spinner = () => (
+  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+    <circle
+      className="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="4"
+    />
+    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+  </svg>
+);
+
+// ── Generic editable field (name, email, phone) ───────────────────────────────
 const EditableField = ({ icon, label, value, type = "text", onSave }) => {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -51,12 +97,10 @@ const EditableField = ({ icon, label, value, type = "text", onSave }) => {
   return (
     <div className="py-5 flex items-start gap-4">
       <span className="text-gray-400 mt-0.5">{icon}</span>
-
       <div className="flex-1 min-w-0">
         <p className="text-[#1a3a6e] text-[10px] font-black uppercase tracking-widest mb-2">
           {label}
         </p>
-
         {editing ? (
           <div className="flex items-center border-2 border-[#1a3a6e] bg-white">
             <input
@@ -75,7 +119,6 @@ const EditableField = ({ icon, label, value, type = "text", onSave }) => {
             {value || <span className="text-gray-300 italic">Not set</span>}
           </p>
         )}
-
         {error && (
           <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
             <span className="w-1.5 h-1.5 bg-red-500 rounded-full inline-block" />
@@ -89,7 +132,6 @@ const EditableField = ({ icon, label, value, type = "text", onSave }) => {
           </p>
         )}
       </div>
-
       <div className="flex items-center gap-1 shrink-0 mt-0.5">
         {editing ? (
           <>
@@ -105,29 +147,7 @@ const EditableField = ({ icon, label, value, type = "text", onSave }) => {
               disabled={loading}
               className="p-2 rounded-lg bg-[#1a3a6e] text-white hover:bg-[#c8a84b] transition-colors disabled:opacity-50"
             >
-              {loading ? (
-                <svg
-                  className="w-4 h-4 animate-spin"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8z"
-                  />
-                </svg>
-              ) : (
-                <CheckIcon style={{ fontSize: 17 }} />
-              )}
+              {loading ? <Spinner /> : <CheckIcon style={{ fontSize: 17 }} />}
             </button>
           </>
         ) : (
@@ -146,7 +166,7 @@ const EditableField = ({ icon, label, value, type = "text", onSave }) => {
   );
 };
 
-// ── Password field (needs old + new) ─────────────────────────────────────────
+// ── Password field ────────────────────────────────────────────────────────────
 const PasswordField = ({ onSave }) => {
   const [editing, setEditing] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
@@ -188,48 +208,15 @@ const PasswordField = ({ onSave }) => {
     setEditing(false);
   };
 
-  const PasswordInput = ({
-    value,
-    show,
-    onToggle,
-    onChange,
-    placeholder,
-    autoFocus,
-  }) => (
-    <div className="flex items-center border-2 border-gray-200 focus-within:border-[#1a3a6e] bg-white transition-colors">
-      <input
-        autoFocus={autoFocus}
-        type={show ? "text" : "password"}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className="flex-1 outline-none px-3 py-2.5 text-sm text-gray-700 placeholder-gray-300 bg-transparent"
-      />
-      <button
-        type="button"
-        onClick={onToggle}
-        className="pr-3 text-gray-400 hover:text-[#1a3a6e] transition-colors"
-      >
-        {show ? (
-          <VisibilityOffOutlinedIcon style={{ fontSize: 17 }} />
-        ) : (
-          <VisibilityOutlinedIcon style={{ fontSize: 17 }} />
-        )}
-      </button>
-    </div>
-  );
-
   return (
     <div className="py-5 flex items-start gap-4">
       <span className="text-gray-400 mt-0.5">
         <LockOutlinedIcon style={{ fontSize: 18 }} />
       </span>
-
       <div className="flex-1 min-w-0">
         <p className="text-[#1a3a6e] text-[10px] font-black uppercase tracking-widest mb-2">
           Password
         </p>
-
         {editing ? (
           <div className="flex flex-col gap-3">
             <div>
@@ -267,7 +254,6 @@ const PasswordField = ({ onSave }) => {
         ) : (
           <p className="text-sm text-gray-700 tracking-widest">••••••••</p>
         )}
-
         {error && (
           <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
             <span className="w-1.5 h-1.5 bg-red-500 rounded-full inline-block" />
@@ -281,7 +267,6 @@ const PasswordField = ({ onSave }) => {
           </p>
         )}
       </div>
-
       <div className="flex items-center gap-1 shrink-0 mt-0.5">
         {editing ? (
           <>
@@ -297,29 +282,7 @@ const PasswordField = ({ onSave }) => {
               disabled={loading}
               className="p-2 rounded-lg bg-[#1a3a6e] text-white hover:bg-[#c8a84b] transition-colors disabled:opacity-50"
             >
-              {loading ? (
-                <svg
-                  className="w-4 h-4 animate-spin"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8z"
-                  />
-                </svg>
-              ) : (
-                <CheckIcon style={{ fontSize: 17 }} />
-              )}
+              {loading ? <Spinner /> : <CheckIcon style={{ fontSize: 17 }} />}
             </button>
           </>
         ) : (
@@ -358,7 +321,6 @@ const Profile = () => {
       .toUpperCase()
       .slice(0, 2) || "A";
 
-  // Generic save helper — returns error string or null
   const saveField = async (payload) => {
     try {
       const res = await fetch(`${API_BASE}/auth/update`, {
@@ -371,8 +333,6 @@ const Profile = () => {
       });
       const data = await res.json();
       if (!res.ok) return data.message || "Update failed.";
-
-      // Persist updated admin data locally
       const updated = { ...adminData, ...data.user };
       localStorage.setItem("adminData", JSON.stringify(updated));
       setProfile((p) => ({ ...p, ...data.user }));
@@ -385,7 +345,6 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
       <div className="w-full max-w-lg">
-        {/* Badge */}
         <div className="inline-flex items-center gap-2 bg-[#1a3a6e]/10 text-[#1a3a6e] px-4 py-1.5 rounded-full mb-6">
           <AdminPanelSettingsOutlinedIcon style={{ fontSize: 16 }} />
           <span className="text-[10px] font-black uppercase tracking-widest">
@@ -394,7 +353,6 @@ const Profile = () => {
         </div>
 
         <div className="bg-white border border-gray-100 shadow-sm rounded-2xl overflow-hidden">
-          {/* Header */}
           <div className="bg-[#1a3a6e] px-8 py-8 flex items-center gap-5 relative overflow-hidden">
             <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/5" />
             <div className="absolute -bottom-8 -left-4 w-32 h-32 rounded-full bg-white/5" />
@@ -412,7 +370,6 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Fields */}
           <div className="px-8 py-2 divide-y divide-gray-50">
             <EditableField
               icon={<PersonOutlinedIcon style={{ fontSize: 18 }} />}
@@ -421,7 +378,6 @@ const Profile = () => {
               type="text"
               onSave={(val) => saveField({ name: val })}
             />
-
             <EditableField
               icon={<EmailOutlinedIcon style={{ fontSize: 18 }} />}
               label="Email Address"
@@ -429,7 +385,6 @@ const Profile = () => {
               type="email"
               onSave={(val) => saveField({ email: val })}
             />
-
             <EditableField
               icon={<PhoneOutlinedIcon style={{ fontSize: 18 }} />}
               label="Phone Number"
@@ -437,7 +392,6 @@ const Profile = () => {
               type="tel"
               onSave={(val) => saveField({ phone: val })}
             />
-
             <PasswordField
               onSave={(oldPassword, newPassword) =>
                 saveField({ oldPassword, newPassword })
