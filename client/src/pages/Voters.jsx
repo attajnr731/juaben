@@ -12,7 +12,7 @@ import RemoveCircleOutlineOutlinedIcon from "@mui/icons-material/RemoveCircleOut
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
 import * as XLSX from "xlsx";
 
-const API = "http://localhost:3000/api";
+const API = "https://juaben.onrender.com/api";
 
 const authHeaders = () => ({
   "Content-Type": "application/json",

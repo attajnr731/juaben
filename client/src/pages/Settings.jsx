@@ -12,7 +12,7 @@ import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 
-const API = "http://localhost:3000/api";
+const API = "https://juaben.onrender.com/api";
 
 // ── Auth header helper ──
 const authHeaders = () => ({

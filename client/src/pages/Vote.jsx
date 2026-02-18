@@ -6,31 +6,49 @@ import ArrowDownwardOutlinedIcon from "@mui/icons-material/ArrowDownwardOutlined
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
 
-const API = "http://localhost:3000/api";
+const API = "https://juaben.onrender.com/api";
 
 // ── Avatar fallback ──
 const Avatar = ({ src, name, size = "lg" }) => {
   const [err, setErr] = useState(false);
-  const initials = name?.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
+  const initials = name
+    ?.split(" ")
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
   const sizeClass = size === "lg" ? "w-24 h-24 text-2xl" : "w-16 h-16 text-lg";
 
   if (!src || err) {
     return (
-      <div className={`${sizeClass} rounded-full bg-[#1a3a6e] text-white font-black flex items-center justify-center shrink-0`}>
+      <div
+        className={`${sizeClass} rounded-full bg-[#1a3a6e] text-white font-black flex items-center justify-center shrink-0`}
+      >
         {initials}
       </div>
     );
   }
   return (
-    <img src={src} alt={name} onError={() => setErr(true)}
-      className={`${sizeClass} rounded-full object-cover shrink-0 border-4 border-white shadow-lg`} />
+    <img
+      src={src}
+      alt={name}
+      onError={() => setErr(true)}
+      className={`${sizeClass} rounded-full object-cover shrink-0 border-4 border-white shadow-lg`}
+    />
   );
 };
 
 // ── Spinner ──
 const Spinner = () => (
   <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+    <circle
+      className="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="4"
+    />
     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
   </svg>
 );
@@ -78,7 +96,9 @@ const Vote = () => {
 
         // Initialize selections with null for each position
         const initial = {};
-        pos.forEach((_, i) => { initial[i] = null; });
+        pos.forEach((_, i) => {
+          initial[i] = null;
+        });
         setSelections(initial);
       } catch (err) {
         console.error("Failed to fetch voting data:", err);
@@ -108,7 +128,7 @@ const Vote = () => {
           root: containerRef.current,
           // Fire when the section covers at least 50% of the scroll container
           threshold: 0.5,
-        }
+        },
       );
       observer.observe(section);
       observers.push(observer);
@@ -119,7 +139,7 @@ const Vote = () => {
 
   // Group candidates by position
   const candidatesByPosition = positions.map((pos) =>
-    candidates.filter((c) => c.position === pos)
+    candidates.filter((c) => c.position === pos),
   );
 
   // ── Navigate to position ──
@@ -158,8 +178,8 @@ const Vote = () => {
         votes.map((vote) =>
           fetch(`${API}/candidates/${vote.candidateId}/vote`, {
             method: "PATCH",
-          })
-        )
+          }),
+        ),
       );
 
       // Mark voter as hasVoted
@@ -198,14 +218,20 @@ const Vote = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="text-center">
-          <p className="text-[#1a3a6e] font-black text-xl mb-2">No Positions Available</p>
-          <p className="text-gray-400 text-sm">The election has not been configured yet.</p>
+          <p className="text-[#1a3a6e] font-black text-xl mb-2">
+            No Positions Available
+          </p>
+          <p className="text-gray-400 text-sm">
+            The election has not been configured yet.
+          </p>
         </div>
       </div>
     );
   }
 
-  const selectedCount = Object.values(selections).filter((v) => v !== null).length;
+  const selectedCount = Object.values(selections).filter(
+    (v) => v !== null,
+  ).length;
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-gray-50">
@@ -213,12 +239,18 @@ const Vote = () => {
       <header className="fixed top-0 inset-x-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="px-4 md:px-8 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Juaben SHS" className="h-8 w-8 object-contain" />
+            <img
+              src="/logo.png"
+              alt="Juaben SHS"
+              className="h-8 w-8 object-contain"
+            />
             <div className="hidden sm:block">
               <p className="text-[#1a3a6e] font-black text-xs uppercase tracking-wide leading-tight">
                 Juaben <span className="text-[#c8a84b]">SHS</span>
               </p>
-              <p className="text-gray-400 text-[9px] tracking-widest uppercase">Voting Ballot</p>
+              <p className="text-gray-400 text-[9px] tracking-widest uppercase">
+                Voting Ballot
+              </p>
             </div>
           </div>
 
@@ -226,12 +258,19 @@ const Vote = () => {
           <div className="flex items-center gap-3">
             <div className="text-right">
               <p className="text-[#1a3a6e] font-black text-sm">
-                {currentIndex + 1} <span className="text-gray-300 font-normal">of {positions.length}</span>
+                {currentIndex + 1}{" "}
+                <span className="text-gray-300 font-normal">
+                  of {positions.length}
+                </span>
               </p>
-              <p className="text-gray-400 text-[10px] uppercase tracking-widest">Positions</p>
+              <p className="text-gray-400 text-[10px] uppercase tracking-widest">
+                Positions
+              </p>
             </div>
             <div className="w-12 h-12 rounded-full border-4 border-gray-100 flex items-center justify-center">
-              <span className="text-[#1a3a6e] font-black text-sm">{selectedCount}</span>
+              <span className="text-[#1a3a6e] font-black text-sm">
+                {selectedCount}
+              </span>
             </div>
           </div>
         </div>
@@ -240,7 +279,9 @@ const Vote = () => {
         <div className="w-full h-1 bg-gray-100">
           <div
             className="h-full bg-[#1a3a6e] transition-all duration-500"
-            style={{ width: `${((currentIndex + 1) / positions.length) * 100}%` }}
+            style={{
+              width: `${((currentIndex + 1) / positions.length) * 100}%`,
+            }}
           />
         </div>
       </header>
@@ -274,13 +315,17 @@ const Vote = () => {
                   >
                     {position}
                   </h2>
-                  <p className="text-gray-400 text-sm">Select one candidate to represent this position</p>
+                  <p className="text-gray-400 text-sm">
+                    Select one candidate to represent this position
+                  </p>
                 </div>
 
                 {/* Candidates grid */}
                 {cands.length === 0 ? (
                   <div className="text-center py-16">
-                    <p className="text-gray-300 text-sm">No candidates for this position yet.</p>
+                    <p className="text-gray-300 text-sm">
+                      No candidates for this position yet.
+                    </p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
@@ -315,7 +360,9 @@ const Vote = () => {
                           <div className="flex flex-col items-center text-center gap-4">
                             <Avatar src={c.profilePicture} name={c.name} />
                             <div>
-                              <p className="text-[#1a3a6e] font-black text-lg mb-1">{c.name}</p>
+                              <p className="text-[#1a3a6e] font-black text-lg mb-1">
+                                {c.name}
+                              </p>
                               {c.bio && (
                                 <p className="text-gray-400 text-xs leading-relaxed line-clamp-3">
                                   {c.bio}
@@ -367,7 +414,10 @@ const Vote = () => {
             {/* Header */}
             <div className="bg-[#1a3a6e] px-6 py-5 flex items-center justify-between sticky top-0 z-10">
               <div className="flex items-center gap-2.5">
-                <HowToVoteOutlinedIcon style={{ fontSize: 20 }} className="text-[#c8a84b]" />
+                <HowToVoteOutlinedIcon
+                  style={{ fontSize: 20 }}
+                  className="text-[#c8a84b]"
+                />
                 <span className="text-white font-black text-sm uppercase tracking-widest">
                   Confirm Your Votes
                 </span>
@@ -384,11 +434,20 @@ const Vote = () => {
               {/* Voter info */}
               <div className="bg-gray-50 border border-gray-100 p-4 mb-6 flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-[#1a3a6e] flex items-center justify-center text-white font-black shrink-0">
-                  {voter.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
+                  {voter.name
+                    .split(" ")
+                    .map((w) => w[0])
+                    .slice(0, 2)
+                    .join("")
+                    .toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-[#1a3a6e] font-black text-sm">{voter.name}</p>
-                  <p className="text-gray-400 text-xs font-mono">{voter.studentId}</p>
+                  <p className="text-[#1a3a6e] font-black text-sm">
+                    {voter.name}
+                  </p>
+                  <p className="text-gray-400 text-xs font-mono">
+                    {voter.studentId}
+                  </p>
                 </div>
               </div>
 
@@ -400,7 +459,9 @@ const Vote = () => {
                 <div className="flex flex-col gap-3">
                   {positions.map((pos, i) => {
                     const candidateId = selections[i];
-                    const candidate = candidates.find((c) => c._id === candidateId);
+                    const candidate = candidates.find(
+                      (c) => c._id === candidateId,
+                    );
                     return (
                       <div
                         key={i}
@@ -411,7 +472,13 @@ const Vote = () => {
                             {pos}
                           </p>
                           <p className="text-[#1a3a6e] font-bold text-sm mt-0.5">
-                            {candidate ? candidate.name : <span className="text-gray-300 italic">No selection</span>}
+                            {candidate ? (
+                              candidate.name
+                            ) : (
+                              <span className="text-gray-300 italic">
+                                No selection
+                              </span>
+                            )}
                           </p>
                         </div>
                         {candidate && (
@@ -428,10 +495,12 @@ const Vote = () => {
 
               {/* Warning */}
               <div className="bg-amber-50 border-l-4 border-amber-500 px-4 py-3 mb-6">
-                <p className="text-amber-800 text-xs font-semibold mb-1">⚠️ Important</p>
+                <p className="text-amber-800 text-xs font-semibold mb-1">
+                  ⚠️ Important
+                </p>
                 <p className="text-amber-700 text-xs leading-relaxed">
-                  Once submitted, your vote <strong>cannot be changed</strong>. Please review your
-                  selections carefully before proceeding.
+                  Once submitted, your vote <strong>cannot be changed</strong>.
+                  Please review your selections carefully before proceeding.
                 </p>
               </div>
 

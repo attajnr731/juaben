@@ -13,7 +13,7 @@ import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
 import FilterListOutlinedIcon from "@mui/icons-material/FilterListOutlined";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 
-const API = "http://localhost:3000/api";
+const API = "https://juaben.onrender.com/api";
 
 const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("adminToken")}`,

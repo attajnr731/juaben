@@ -7,7 +7,7 @@ import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = "https://juaben.onrender.com/api";
 
 const Login = () => {
   const navigate = useNavigate();

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = "https://juaben.onrender.com/api";
 
 const VotingProtectedRoute = () => {
   const navigate = useNavigate();
@@ -68,9 +68,24 @@ const VotingProtectedRoute = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <svg className="w-8 h-8 animate-spin text-[#1a3a6e]" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+        <svg
+          className="w-8 h-8 animate-spin text-[#1a3a6e]"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v8z"
+          />
         </svg>
       </div>
     );
@@ -91,11 +106,16 @@ const VotingProtectedRoute = () => {
         `}</style>
 
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-md px-4">
-          <div className={`bg-white w-full max-w-sm shadow-2xl ${shaking ? "shake" : ""}`}>
+          <div
+            className={`bg-white w-full max-w-sm shadow-2xl ${shaking ? "shake" : ""}`}
+          >
             {/* Header */}
             <div className="bg-[#1a3a6e] px-6 py-5 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <LockOutlinedIcon style={{ fontSize: 18 }} className="text-[#c8a84b]" />
+                <LockOutlinedIcon
+                  style={{ fontSize: 18 }}
+                  className="text-[#c8a84b]"
+                />
                 <span className="text-white font-black text-sm uppercase tracking-widest">
                   Voting Access Required
                 </span>
@@ -153,9 +173,24 @@ const VotingProtectedRoute = () => {
                   >
                     {verifying ? (
                       <>
-                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        <svg
+                          className="w-4 h-4 animate-spin"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v8z"
+                          />
                         </svg>
                         Verifying…
                       </>
