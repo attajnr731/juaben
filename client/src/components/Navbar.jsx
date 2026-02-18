@@ -108,7 +108,9 @@ const Navbar = ({ onMenuToggle }) => {
 
     try {
       // Fetch the voting passcode from settings
-      const res = await fetch(`${API_BASE}/settings`, { headers: authHeaders() });
+      const res = await fetch(`${API_BASE}/settings`, {
+        headers: authHeaders(),
+      });
       const data = await res.json();
 
       if (!res.ok) throw new Error("Failed to fetch settings.");
@@ -223,8 +225,10 @@ const Navbar = ({ onMenuToggle }) => {
               JA
             </div>
             <div className="hidden md:block text-left leading-tight">
-              <p className="text-gray-700 text-xs font-bold">Juaben Admin</p>
-              <p className="text-gray-400 text-[10px]">Super Admin</p>
+              <p className="text-gray-700 text-xs font-bold">
+                Electoral Commission
+              </p>
+              <p className="text-gray-400 text-[10px]">Admin</p>
             </div>
             <KeyboardArrowDownIcon
               style={{ fontSize: 16 }}
@@ -235,22 +239,6 @@ const Navbar = ({ onMenuToggle }) => {
           {/* Dropdown */}
           {profileOpen && (
             <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-100 shadow-xl z-50">
-              <div className="px-4 py-4 border-b border-gray-100">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#1a3a6e] flex items-center justify-center text-white text-sm font-black">
-                    JA
-                  </div>
-                  <div>
-                    <p className="text-gray-700 text-xs font-black">
-                      Juaben Admin
-                    </p>
-                    <p className="text-gray-400 text-[10px]">
-                      admin@juabenshs.edu.gh
-                    </p>
-                  </div>
-                </div>
-              </div>
-
               <ul className="py-1">
                 {[
                   {
@@ -376,11 +364,16 @@ const Navbar = ({ onMenuToggle }) => {
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
           onClick={(e) => e.target === e.currentTarget && closeVoteModal()}
         >
-          <div className={`bg-white w-full max-w-sm shadow-2xl ${shaking ? "shake" : ""}`}>
+          <div
+            className={`bg-white w-full max-w-sm shadow-2xl ${shaking ? "shake" : ""}`}
+          >
             {/* Header */}
             <div className="bg-[#1a3a6e] px-6 py-5 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <LockOutlinedIcon style={{ fontSize: 18 }} className="text-[#c8a84b]" />
+                <LockOutlinedIcon
+                  style={{ fontSize: 18 }}
+                  className="text-[#c8a84b]"
+                />
                 <span className="text-white font-black text-sm uppercase tracking-widest">
                   Voting Access
                 </span>
@@ -396,7 +389,8 @@ const Navbar = ({ onMenuToggle }) => {
             {/* Body */}
             <div className="px-6 py-6">
               <p className="text-gray-400 text-sm mb-5 leading-relaxed">
-                Enter the voting passcode to proceed to the student voting portal.
+                Enter the voting passcode to proceed to the student voting
+                portal.
               </p>
 
               <form onSubmit={handleVoteSubmit} className="flex flex-col gap-4">
@@ -444,9 +438,24 @@ const Navbar = ({ onMenuToggle }) => {
                   >
                     {verifying ? (
                       <>
-                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        <svg
+                          className="w-4 h-4 animate-spin"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v8z"
+                          />
                         </svg>
                         Verifying…
                       </>

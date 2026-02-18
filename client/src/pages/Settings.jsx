@@ -10,6 +10,7 @@ import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 
 const API = "http://localhost:3000/api";
 
@@ -20,17 +21,26 @@ const authHeaders = () => ({
 });
 
 // ── Reusable section card ──
-const SectionCard = ({ icon, title, subtitle, children }) => (
-  <div className="bg-white border border-gray-100 shadow-sm">
-    <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
+const SectionCard = ({ icon, title, subtitle, children, danger }) => (
+  <div
+    className={`bg-white border shadow-sm ${danger ? "border-red-200" : "border-gray-100"}`}
+  >
+    <div
+      className={`flex items-center gap-3 px-6 py-5 border-b ${danger ? "border-red-100 bg-red-50" : "border-gray-100"}`}
+    >
       <div
-        className="w-9 h-9 rounded-sm flex items-center justify-center text-[#1a3a6e]"
-        style={{ background: "rgba(26,58,110,0.08)" }}
+        className="w-9 h-9 rounded-sm flex items-center justify-center"
+        style={{
+          background: danger ? "rgba(239,68,68,0.1)" : "rgba(26,58,110,0.08)",
+          color: danger ? "#ef4444" : "#1a3a6e",
+        }}
       >
         {icon}
       </div>
       <div>
-        <h3 className="text-[#1a3a6e] font-black text-sm uppercase tracking-wide">
+        <h3
+          className={`font-black text-sm uppercase tracking-wide ${danger ? "text-red-600" : "text-[#1a3a6e]"}`}
+        >
           {title}
         </h3>
         <p className="text-gray-400 text-xs mt-0.5">{subtitle}</p>
@@ -87,6 +97,11 @@ const Settings = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [passStatus, setPassStatus] = useState({ status: "", message: "" });
   const [passLoading, setPassLoading] = useState(false);
+
+  // ── Delete Election Data ──
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteStatus, setDeleteStatus] = useState({ status: "", message: "" });
 
   // ── Fetch settings on mount ──
   const fetchSettings = useCallback(async () => {
@@ -217,6 +232,30 @@ const Settings = () => {
     } finally {
       setPassLoading(false);
       setTimeout(() => setPassStatus({ status: "", message: "" }), 3000);
+    }
+  };
+
+  // ── Delete all election data ──
+  const doDeleteElectionData = async () => {
+    setDeleteLoading(true);
+    setDeleteStatus({ status: "", message: "" });
+    try {
+      const res = await fetch(`${API}/settings/election-data`, {
+        method: "DELETE",
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      setDeleteStatus({ status: "success", message: data.message });
+      setShowDeleteModal(false);
+      setTimeout(() => setDeleteStatus({ status: "", message: "" }), 4000);
+    } catch (err) {
+      setDeleteStatus({
+        status: "error",
+        message: err.message || "Failed to delete election data.",
+      });
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -595,9 +634,37 @@ const Settings = () => {
             </button>
           </div>
         </SectionCard>
+
+        {/* ── 4. DANGER ZONE ── */}
+        <div>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <p className="text-gray-700 font-bold text-sm mb-1">
+                Delete Election Data
+              </p>
+              <p className="text-gray-400 text-xs leading-relaxed max-w-sm">
+                Permanently removes all candidates and voters from the database.
+                Positions and settings are kept. This cannot be undone.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="flex items-center gap-2 px-6 py-2.5 text-xs font-black uppercase tracking-widest bg-red-500 hover:bg-red-600 text-white transition-all duration-300 shadow-sm shrink-0"
+            >
+              <DeleteOutlineOutlinedIcon style={{ fontSize: 16 }} />
+              Delete Election Data
+            </button>
+          </div>
+
+          {deleteStatus.message && (
+            <div className="mt-4">
+              <StatusPill {...deleteStatus} />
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* ── DELETE CONFIRM MODAL ── */}
+      {/* ── POSITION DELETE CONFIRM MODAL ── */}
       {deleteIndex !== null && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4"
@@ -632,6 +699,91 @@ const Settings = () => {
                   className="flex-1 bg-red-500 hover:bg-red-600 text-white font-black text-xs uppercase tracking-widest py-3 transition-all"
                 >
                   Yes, Remove
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── DELETE ELECTION DATA CONFIRM MODAL ── */}
+      {showDeleteModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
+          onClick={(e) =>
+            !deleteLoading &&
+            e.target === e.currentTarget &&
+            setShowDeleteModal(false)
+          }
+        >
+          <div className="bg-white w-full max-w-sm shadow-2xl">
+            {/* Red header */}
+            <div className="bg-red-500 px-6 py-4 flex items-center gap-2">
+              <WarningAmberOutlinedIcon
+                style={{ fontSize: 20 }}
+                className="text-white"
+              />
+              <span className="text-white font-black text-sm uppercase tracking-widest">
+                Delete Election Data
+              </span>
+            </div>
+
+            <div className="px-6 py-6">
+              {/* Warning banner */}
+
+              <p className="text-gray-600 text-sm mb-6">
+                This Action is irreversible. Are you sure you want to wipe all
+                election data?
+              </p>
+
+              {deleteStatus.message && (
+                <div className="mb-4">
+                  <StatusPill {...deleteStatus} />
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={deleteLoading}
+                  className="flex-1 border-2 border-gray-200 hover:border-gray-300 text-gray-400 font-bold text-xs uppercase tracking-widest py-3 transition-all disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={doDeleteElectionData}
+                  disabled={deleteLoading}
+                  className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-60 text-white font-black text-xs uppercase tracking-widest py-3 transition-all flex items-center justify-center gap-2"
+                >
+                  {deleteLoading ? (
+                    <>
+                      <svg
+                        className="w-4 h-4 animate-spin"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8z"
+                        />
+                      </svg>
+                      Deleting…
+                    </>
+                  ) : (
+                    <>
+                      <DeleteOutlineOutlinedIcon style={{ fontSize: 16 }} />
+                      Yes, Delete All
+                    </>
+                  )}
                 </button>
               </div>
             </div>

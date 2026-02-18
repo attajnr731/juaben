@@ -1,4 +1,7 @@
 import Settings from "../models/Settings.js";
+import Candidate from "../models/Candidate.js";
+import Voter from "../models/Voter.js";
+import Setting from "../models/Settings.js";
 
 // ── Helper: always get-or-create the single settings doc ──
 const getOrCreate = () =>
@@ -43,12 +46,10 @@ export const updatePeriod = async (req, res) => {
       { upsert: true, new: true },
     );
 
-    return res
-      .status(200)
-      .json({
-        message: "Election period saved.",
-        electionPeriod: settings.electionPeriod,
-      });
+    return res.status(200).json({
+      message: "Election period saved.",
+      electionPeriod: settings.electionPeriod,
+    });
   } catch (err) {
     console.error("updatePeriod error:", err);
     return res.status(500).json({ message: "Server error" });
@@ -100,5 +101,21 @@ export const updatePasscode = async (req, res) => {
   } catch (err) {
     console.error("updatePasscode error:", err);
     return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const deleteElectionData = async (req, res) => {
+  try {
+    await Promise.all([Candidate.deleteMany({}), Voter.deleteMany({})]);
+
+    // Clear positions from settings
+    await Settings.updateOne({}, { $set: { positions: [] } });
+
+    res.json({
+      message: "All candidates, voters, and positions have been deleted.",
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Failed to delete election data." });
   }
 };

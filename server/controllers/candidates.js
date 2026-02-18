@@ -38,7 +38,7 @@ export const getCandidates = async (req, res) => {
 // ─────────────────────────────────────
 export const addCandidate = async (req, res) => {
   try {
-    const { name, position, bio } = req.body;
+    const { name, position } = req.body;
 
     if (!name || !position)
       return res
@@ -51,7 +51,6 @@ export const addCandidate = async (req, res) => {
     const candidate = await Candidate.create({
       name: name.trim(),
       position: position.trim(),
-      bio: bio?.trim() || "",
       profilePicture,
     });
 
@@ -77,11 +76,10 @@ export const updateCandidate = async (req, res) => {
     if (!candidate)
       return res.status(404).json({ message: "Candidate not found." });
 
-    const { name, position, bio } = req.body;
+    const { name, position } = req.body;
 
     if (name) candidate.name = name.trim();
     if (position) candidate.position = position.trim();
-    if (bio !== undefined) candidate.bio = bio.trim();
 
     // New image uploaded — delete old one from R2 first
     if (req.file?.key) {

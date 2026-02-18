@@ -157,7 +157,7 @@ const Spinner = () => (
   </svg>
 );
 
-const EMPTY_FORM = { name: "", position: "", bio: "" };
+const EMPTY_FORM = { name: "", position: "" };
 
 const Candidates = () => {
   const [candidates, setCandidates] = useState([]);
@@ -239,7 +239,7 @@ const Candidates = () => {
 
   const openEdit = (c) => {
     setEditTarget(c);
-    setForm({ name: c.name, position: c.position, bio: c.bio || "" });
+    setForm({ name: c.name, position: c.position });
     setImageFile(null);
     setImagePreview(c.profilePicture || ""); // ✅ use profilePicture
     setFormErrors({});
@@ -280,7 +280,6 @@ const Candidates = () => {
       const fd = new FormData();
       fd.append("name", form.name.trim());
       fd.append("position", form.position.trim());
-      fd.append("bio", form.bio.trim());
       // ✅ key must match uploadToR2.single("profilePicture")
       if (imageFile) fd.append("profilePicture", imageFile);
 
@@ -515,9 +514,7 @@ const Candidates = () => {
                   <th className="text-left px-6 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                     Position
                   </th>
-                  <th className="text-left px-6 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                    Bio
-                  </th>
+
                   <th className="text-left px-6 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                     Votes
                   </th>
@@ -563,11 +560,7 @@ const Candidates = () => {
                           {c.position}
                         </span>
                       </td>
-                      <td className="px-6 py-3.5 text-gray-400 text-xs max-w-[200px] truncate">
-                        {c.bio || (
-                          <span className="text-gray-200 italic">No bio</span>
-                        )}
-                      </td>
+
                       <td className="px-6 py-3.5">
                         <span className="font-black text-[#1a3a6e] text-sm">
                           {c.voteCount ?? 0}
@@ -718,25 +711,6 @@ const Candidates = () => {
                     No positions in Settings yet — you can type one manually.
                   </p>
                 )}
-              </div>
-
-              {/* Bio */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-[#1a3a6e] uppercase tracking-widest">
-                  Bio{" "}
-                  <span className="text-gray-300 font-normal normal-case">
-                    (optional)
-                  </span>
-                </label>
-                <textarea
-                  value={form.bio}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, bio: e.target.value }))
-                  }
-                  placeholder="Short description about the candidate…"
-                  rows={3}
-                  className="border-2 border-gray-200 focus:border-[#1a3a6e] outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 resize-none transition-colors"
-                />
               </div>
 
               <div className="flex gap-3 pt-2">
