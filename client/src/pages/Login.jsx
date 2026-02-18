@@ -62,6 +62,7 @@ const Login = () => {
       // If your server returns a token, store it
       if (data.token) {
         localStorage.setItem("adminToken", data.token);
+        localStorage.setItem("adminData", JSON.stringify(data.admin)); // { id, name, email }
       }
 
       // Redirect to dashboard

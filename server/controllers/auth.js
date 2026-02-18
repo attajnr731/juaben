@@ -41,14 +41,15 @@ export const logout = (req, res) => {
   return res.status(200).json({ message: "Logout successful" });
 };
 
-// ✅ Update profile
 export const updateProfile = async (req, res) => {
-  const { userId, phone, oldPassword, newPassword } = req.body;
+  const { userId, name, email, phone, oldPassword, newPassword } = req.body;
 
   try {
     const user = await Admin.findById(userId);
     if (!user) return res.status(404).json({ message: "Admin not found" });
 
+    if (name) user.name = name;
+    if (email) user.email = email;
     if (phone) user.phone = phone;
 
     if (oldPassword && newPassword) {
@@ -61,9 +62,15 @@ export const updateProfile = async (req, res) => {
 
     await user.save();
 
-    return res
-      .status(200)
-      .json({ message: "Profile updated successfully", user });
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+      },
+    });
   } catch (error) {
     return res.status(500).json({ message: "Server error", error });
   }
