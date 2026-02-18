@@ -227,7 +227,7 @@ const Voters = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
-      setVoters([]);
+      setVoters(...voters.map((v) => ({ ...v, hasVoted: false })));
       showToast(data.message);
     } catch (err) {
       showToast(err.message || "Failed to reset voters.", "error");
