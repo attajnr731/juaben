@@ -8,6 +8,17 @@ import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
 
 const API = "https://juaben.onrender.com/api";
 
+// ── Check if current time is within the election period ──
+const isWithinElectionPeriod = (period) => {
+  if (!period) return false;
+  const { startDate, startTime, endDate, endTime } = period;
+  if (!startDate || !startTime || !endDate || !endTime) return false;
+  const now = new Date();
+  const start = new Date(`${startDate}T${startTime}`);
+  const end = new Date(`${endDate}T${endTime}`);
+  return now >= start && now <= end;
+};
+
 // ── Avatar fallback ──
 const Avatar = ({ src, name, size = "lg" }) => {
   const [err, setErr] = useState(false);
@@ -61,13 +72,14 @@ const Vote = () => {
   const [loading, setLoading] = useState(true);
   const [positions, setPositions] = useState([]);
   const [candidates, setCandidates] = useState([]);
-  const [selections, setSelections] = useState({}); // { positionIndex: candidateId }
+  const [selections, setSelections] = useState({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showConfirm, setShowConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // Guard: if election closes while user is mid-ballot
+  const [votingClosed, setVotingClosed] = useState(false);
 
   const containerRef = useRef(null);
-  // Holds a ref for each position section so we can scroll to them and observe them
   const sectionRefs = useRef([]);
 
   // Redirect if no voter data
@@ -75,7 +87,7 @@ const Vote = () => {
     return <Navigate to="/vote-login" replace />;
   }
 
-  // ── Fetch data ──
+  // ── Fetch data + validate election period ──
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -90,11 +102,17 @@ const Vote = () => {
           candidatesRes.json(),
         ]);
 
+        // ── Period check ──
+        if (!isWithinElectionPeriod(settingsData.electionPeriod)) {
+          setVotingClosed(true);
+          setLoading(false);
+          return;
+        }
+
         const pos = settingsData.positions || [];
         setPositions(pos);
         setCandidates(candidatesData);
 
-        // Initialize selections with null for each position
         const initial = {};
         pos.forEach((_, i) => {
           initial[i] = null;
@@ -109,52 +127,50 @@ const Vote = () => {
     fetchData();
   }, []);
 
-  // ── IntersectionObserver: keep currentIndex in sync with whatever section
-  //    is scrolled into view — this fixes the "Next only works once" bug ──
+  // ── Re-check period every 30 seconds in case it closes mid-session ──
+  useEffect(() => {
+    if (votingClosed) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`${API}/settings`);
+        const data = await res.json();
+        if (!isWithinElectionPeriod(data.electionPeriod)) {
+          setVotingClosed(true);
+        }
+      } catch (_) {}
+    }, 30_000);
+    return () => clearInterval(interval);
+  }, [votingClosed]);
+
+  // ── IntersectionObserver ──
   useEffect(() => {
     if (loading || positions.length === 0) return;
-
     const observers = [];
-
     sectionRefs.current.forEach((section, index) => {
       if (!section) return;
       const observer = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting) {
-            setCurrentIndex(index);
-          }
+          if (entry.isIntersecting) setCurrentIndex(index);
         },
-        {
-          root: containerRef.current,
-          // Fire when the section covers at least 50% of the scroll container
-          threshold: 0.5,
-        },
+        { root: containerRef.current, threshold: 0.5 },
       );
       observer.observe(section);
       observers.push(observer);
     });
-
     return () => observers.forEach((o) => o.disconnect());
   }, [loading, positions]);
 
-  // Group candidates by position
   const candidatesByPosition = positions.map((pos) =>
     candidates.filter((c) => c.position === pos),
   );
 
-  // ── Navigate to position ──
   const scrollToPosition = (index) => {
     const section = sectionRefs.current[index];
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth", block: "start" });
-      // currentIndex will be updated by the IntersectionObserver
-    }
+    if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const handleNext = () => {
-    if (currentIndex < positions.length - 1) {
-      scrollToPosition(currentIndex + 1);
-    }
+    if (currentIndex < positions.length - 1) scrollToPosition(currentIndex + 1);
   };
 
   const handleSelect = (posIndex, candidateId) => {
@@ -163,9 +179,19 @@ const Vote = () => {
 
   // ── Submit votes ──
   const handleSubmit = async () => {
+    // Final period check before submitting
+    try {
+      const res = await fetch(`${API}/settings`);
+      const data = await res.json();
+      if (!isWithinElectionPeriod(data.electionPeriod)) {
+        setVotingClosed(true);
+        setShowConfirm(false);
+        return;
+      }
+    } catch (_) {}
+
     setSubmitting(true);
     try {
-      // Build vote payload
       const votes = Object.entries(selections)
         .filter(([_, candidateId]) => candidateId !== null)
         .map(([posIndex, candidateId]) => ({
@@ -173,7 +199,6 @@ const Vote = () => {
           candidateId,
         }));
 
-      // Submit votes (increment voteCount for each selected candidate)
       await Promise.all(
         votes.map((vote) =>
           fetch(`${API}/candidates/${vote.candidateId}/vote`, {
@@ -182,12 +207,8 @@ const Vote = () => {
         ),
       );
 
-      // Mark voter as hasVoted
-      await fetch(`${API}/voters/${voter._id}/vote`, {
-        method: "PATCH",
-      });
+      await fetch(`${API}/voters/${voter._id}/vote`, { method: "PATCH" });
 
-      // Success → navigate to thank you / results
       navigate("/vote-success", { replace: true });
     } catch (err) {
       console.error("Vote submission failed:", err);
@@ -197,17 +218,62 @@ const Vote = () => {
     }
   };
 
-  // ── Confirm modal ──
   const openConfirm = () => setShowConfirm(true);
   const closeConfirm = () => setShowConfirm(false);
 
-  // ── Loading state ──
+  // ── Loading ──
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Spinner />
           <p className="text-gray-400 text-sm">Loading ballot…</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Voting closed / outside period ──
+  if (votingClosed) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="bg-white border border-gray-100 shadow-xl w-full max-w-sm text-center overflow-hidden">
+          <div className="bg-gray-700 px-6 py-8">
+            <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-8 h-8 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 15v2m0 0v2m0-2h2m-2 0H10m2-9a4 4 0 100 8 4 4 0 000-8z"
+                />
+              </svg>
+            </div>
+            <h2
+              className="text-white font-black text-xl uppercase tracking-wide"
+              style={{ fontFamily: "'Georgia', serif" }}
+            >
+              Voting Closed
+            </h2>
+          </div>
+          <div className="px-6 py-8">
+            <p className="text-gray-600 text-sm leading-relaxed mb-6">
+              The voting window has ended. Your ballot has <strong>not</strong>{" "}
+              been submitted. Please contact your election administrator for
+              assistance.
+            </p>
+            <button
+              onClick={() => navigate("/vote-login", { replace: true })}
+              className="w-full bg-[#1a3a6e] hover:bg-[#c8a84b] text-white font-black text-xs uppercase tracking-widest py-3.5 transition-all duration-300"
+            >
+              Back to Home
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -254,7 +320,6 @@ const Vote = () => {
             </div>
           </div>
 
-          {/* Progress */}
           <div className="flex items-center gap-3">
             <div className="text-right">
               <p className="text-[#1a3a6e] font-black text-sm">
@@ -275,7 +340,6 @@ const Vote = () => {
           </div>
         </div>
 
-        {/* Progress bar */}
         <div className="w-full h-1 bg-gray-100">
           <div
             className="h-full bg-[#1a3a6e] transition-all duration-500"
@@ -299,12 +363,10 @@ const Vote = () => {
           return (
             <section
               key={posIndex}
-              // Attach each section to sectionRefs so the observer and scrollToPosition can use it
               ref={(el) => (sectionRefs.current[posIndex] = el)}
               className="w-full min-h-screen snap-start flex items-center justify-center px-4 py-16"
             >
               <div className="w-full max-w-4xl">
-                {/* Position title */}
                 <div className="text-center mb-10">
                   <p className="text-[#c8a84b] text-xs tracking-[0.3em] uppercase font-bold mb-2">
                     Position {posIndex + 1} of {positions.length}
@@ -320,7 +382,6 @@ const Vote = () => {
                   </p>
                 </div>
 
-                {/* Candidates grid */}
                 {cands.length === 0 ? (
                   <div className="text-center py-16">
                     <p className="text-gray-300 text-sm">
@@ -341,7 +402,6 @@ const Vote = () => {
                               : "border-gray-200 bg-white hover:border-[#c8a84b]"
                           }`}
                         >
-                          {/* Selection indicator */}
                           <div className="absolute top-4 right-4">
                             {isSelected ? (
                               <CheckCircleOutlineOutlinedIcon
@@ -355,8 +415,6 @@ const Vote = () => {
                               />
                             )}
                           </div>
-
-                          {/* Candidate info */}
                           <div className="flex flex-col items-center text-center gap-4">
                             <Avatar src={c.profilePicture} name={c.name} />
                             <div>
@@ -376,7 +434,6 @@ const Vote = () => {
                   </div>
                 )}
 
-                {/* Action button */}
                 <div className="flex justify-center">
                   {isLast ? (
                     <button
@@ -402,16 +459,13 @@ const Vote = () => {
         })}
       </div>
 
-      {/* ══════════════════════════════
-          CONFIRMATION MODAL
-      ══════════════════════════════ */}
+      {/* ── CONFIRMATION MODAL ── */}
       {showConfirm && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
           onClick={(e) => e.target === e.currentTarget && closeConfirm()}
         >
           <div className="bg-white w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
-            {/* Header */}
             <div className="bg-[#1a3a6e] px-6 py-5 flex items-center justify-between sticky top-0 z-10">
               <div className="flex items-center gap-2.5">
                 <HowToVoteOutlinedIcon
@@ -431,7 +485,6 @@ const Vote = () => {
             </div>
 
             <div className="px-6 py-6">
-              {/* Voter info */}
               <div className="bg-gray-50 border border-gray-100 p-4 mb-6 flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-[#1a3a6e] flex items-center justify-center text-white font-black shrink-0">
                   {voter.name
@@ -451,7 +504,6 @@ const Vote = () => {
                 </div>
               </div>
 
-              {/* Vote summary */}
               <div className="mb-6">
                 <p className="text-[#1a3a6e] font-black text-xs uppercase tracking-widest mb-3">
                   Your Selections
@@ -493,7 +545,6 @@ const Vote = () => {
                 </div>
               </div>
 
-              {/* Warning */}
               <div className="bg-amber-50 border-l-4 border-amber-500 px-4 py-3 mb-6">
                 <p className="text-amber-800 text-xs font-semibold mb-1">
                   ⚠️ Important
@@ -504,7 +555,6 @@ const Vote = () => {
                 </p>
               </div>
 
-              {/* Actions */}
               <div className="flex gap-3">
                 <button
                   onClick={closeConfirm}
@@ -520,13 +570,11 @@ const Vote = () => {
                 >
                   {submitting ? (
                     <>
-                      <Spinner />
-                      Submitting…
+                      <Spinner /> Submitting…
                     </>
                   ) : (
                     <>
-                      <SendOutlinedIcon style={{ fontSize: 16 }} />
-                      Submit Votes
+                      <SendOutlinedIcon style={{ fontSize: 16 }} /> Submit Votes
                     </>
                   )}
                 </button>
