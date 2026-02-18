@@ -10,6 +10,7 @@ import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
 import PeopleOutlineOutlinedIcon from "@mui/icons-material/PeopleOutlineOutlined";
 import RemoveCircleOutlineOutlinedIcon from "@mui/icons-material/RemoveCircleOutlineOutlined";
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import * as XLSX from "xlsx";
 
 const API = "https://juaben.onrender.com/api";
@@ -18,6 +19,26 @@ const authHeaders = () => ({
   "Content-Type": "application/json",
   Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
 });
+
+// ── Export voters to Excel ──
+const exportVoters = (voters) => {
+  const rows = voters.map((v, i) => ({
+    "#": i + 1,
+    "Student ID": v.studentId,
+    Name: v.name,
+    "Has Voted": v.hasVoted ? "Yes" : "No",
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws["!cols"] = [{ wch: 5 }, { wch: 16 }, { wch: 28 }, { wch: 12 }];
+
+  // Color-code the "Has Voted" column header
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Voters");
+
+  const date = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `voters_${date}.xlsx`);
+};
 
 // ── Stat card ──
 const Stat = ({ icon, label, value, accent }) => (
@@ -42,11 +63,7 @@ const Toast = ({ toast }) => {
   if (!toast.message) return null;
   return (
     <div
-      className={`fixed bottom-6 right-6 z-[200] flex items-center gap-3 px-5 py-3 shadow-xl text-sm font-semibold border ${
-        toast.type === "error"
-          ? "bg-red-50 border-red-200 text-red-700"
-          : "bg-green-50 border-green-200 text-green-700"
-      }`}
+      className={`fixed bottom-6 right-6 z-[200] flex items-center gap-3 px-5 py-3 shadow-xl text-sm font-semibold border ${toast.type === "error" ? "bg-red-50 border-red-200 text-red-700" : "bg-green-50 border-green-200 text-green-700"}`}
     >
       <span
         className={`w-2 h-2 rounded-full shrink-0 ${toast.type === "error" ? "bg-red-500" : "bg-green-500"}`}
@@ -63,22 +80,18 @@ const Voters = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [toast, setToast] = useState({ message: "", type: "" });
 
-  // Add voter modal
   const [addOpen, setAddOpen] = useState(false);
   const [newId, setNewId] = useState("");
   const [newName, setNewName] = useState("");
   const [addErrors, setAddErrors] = useState({});
   const [addLoading, setAddLoading] = useState(false);
 
-  // Delete single
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // Delete all
   const [deleteAllOpen, setDeleteAllOpen] = useState(false);
   const [deleteAllLoading, setDeleteAllLoading] = useState(false);
 
-  // Bulk upload
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkPreview, setBulkPreview] = useState([]);
   const [bulkError, setBulkError] = useState("");
@@ -86,13 +99,11 @@ const Voters = () => {
   const [bulkLoading, setBulkLoading] = useState(false);
   const fileRef = useRef(null);
 
-  // ── Toast helper ──
   const showToast = (message, type = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast({ message: "", type: "" }), 3500);
   };
 
-  // ── Fetch voters ──
   const fetchVoters = useCallback(async (searchTerm = "") => {
     setLoading(true);
     try {
@@ -116,7 +127,6 @@ const Voters = () => {
     fetchVoters();
   }, [fetchVoters]);
 
-  // Debounce search → re-fetch from server
   useEffect(() => {
     const t = setTimeout(() => fetchVoters(search), 350);
     return () => clearTimeout(t);
@@ -125,7 +135,6 @@ const Voters = () => {
   const votedCount = voters.filter((v) => v.hasVoted).length;
   const pendingCount = voters.length - votedCount;
 
-  // ── Add voter ──
   const validateAdd = () => {
     const e = {};
     if (!newId.trim()) e.id = "ID is required.";
@@ -148,7 +157,6 @@ const Voters = () => {
       });
       const data = await res.json();
       if (!res.ok) {
-        // If server says ID already exists, show inline error
         if (data.message?.toLowerCase().includes("already exists")) {
           setAddErrors({ id: data.message });
           return;
@@ -168,7 +176,6 @@ const Voters = () => {
     }
   };
 
-  // ── Delete single ──
   const doDelete = async () => {
     setDeleteLoading(true);
     try {
@@ -188,7 +195,6 @@ const Voters = () => {
     }
   };
 
-  // ── Delete all ──
   const doDeleteAll = async () => {
     setDeleteAllLoading(true);
     try {
@@ -208,7 +214,6 @@ const Voters = () => {
     }
   };
 
-  // ── Parse Excel / CSV ──
   const handleFile = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -226,7 +231,6 @@ const Voters = () => {
             name: String(r["Name"] || r["name"] || r["NAME"] || "").trim(),
           }))
           .filter((r) => r.studentId && r.name);
-
         if (!parsed.length) {
           setBulkError("No valid rows found. Columns must be 'id' and 'Name'.");
           setBulkPreview([]);
@@ -251,7 +255,7 @@ const Voters = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
-      await fetchVoters(search); // re-fetch to get fresh list
+      await fetchVoters(search);
       showToast(data.message);
       setBulkPreview([]);
       setBulkFileName("");
@@ -267,7 +271,24 @@ const Voters = () => {
     (r) => !voters.some((v) => v.studentId === r.studentId),
   ).length;
 
-  // ── Loading skeleton rows ──
+  const SpinnerSvg = () => (
+    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v8z"
+      />
+    </svg>
+  );
+
   const SkeletonRows = () => (
     <>
       {Array.from({ length: 6 }).map((_, i) => (
@@ -351,6 +372,17 @@ const Voters = () => {
               className="p-2.5 border-2 border-gray-200 hover:border-[#1a3a6e] text-gray-400 hover:text-[#1a3a6e] transition-all"
             >
               <RefreshOutlinedIcon style={{ fontSize: 20 }} />
+            </button>
+
+            {/* ── Export button ── */}
+            <button
+              onClick={() => exportVoters(voters)}
+              disabled={voters.length === 0}
+              title="Export to Excel"
+              className="flex items-center gap-1.5 border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all duration-300 disabled:opacity-40"
+            >
+              <FileDownloadOutlinedIcon style={{ fontSize: 17 }} />
+              Export
             </button>
 
             <button
@@ -558,11 +590,7 @@ const Voters = () => {
                     setAddErrors((p) => ({ ...p, id: "" }));
                   }}
                   placeholder="e.g. JHS011"
-                  className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors ${
-                    addErrors.id
-                      ? "border-red-400 bg-red-50"
-                      : "border-gray-200 focus:border-[#1a3a6e]"
-                  }`}
+                  className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors ${addErrors.id ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[#1a3a6e]"}`}
                 />
                 {addErrors.id && (
                   <p className="text-red-500 text-xs">{addErrors.id}</p>
@@ -580,11 +608,7 @@ const Voters = () => {
                   }}
                   onKeyDown={(e) => e.key === "Enter" && handleAdd()}
                   placeholder="e.g. Kofi Acheampong"
-                  className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors ${
-                    addErrors.name
-                      ? "border-red-400 bg-red-50"
-                      : "border-gray-200 focus:border-[#1a3a6e]"
-                  }`}
+                  className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors ${addErrors.name ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[#1a3a6e]"}`}
                 />
                 {addErrors.name && (
                   <p className="text-red-500 text-xs">{addErrors.name}</p>
@@ -602,29 +626,7 @@ const Voters = () => {
                   disabled={addLoading}
                   className="flex-1 bg-[#1a3a6e] hover:bg-[#c8a84b] disabled:opacity-60 text-white font-black text-xs uppercase tracking-widest py-3 transition-all duration-300 flex items-center justify-center gap-2"
                 >
-                  {addLoading ? (
-                    <svg
-                      className="w-4 h-4 animate-spin"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v8z"
-                      />
-                    </svg>
-                  ) : (
-                    "Add →"
-                  )}
+                  {addLoading ? <SpinnerSvg /> : "Add →"}
                 </button>
               </div>
             </div>
@@ -780,25 +782,7 @@ const Voters = () => {
                   className="flex-1 bg-[#1a3a6e] hover:bg-[#c8a84b] disabled:opacity-40 text-white font-black text-xs uppercase tracking-widest py-3 transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   {bulkLoading ? (
-                    <svg
-                      className="w-4 h-4 animate-spin"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v8z"
-                      />
-                    </svg>
+                    <SpinnerSvg />
                   ) : (
                     `Import ${newCount} Voter${newCount !== 1 ? "s" : ""}`
                   )}
@@ -847,29 +831,7 @@ const Voters = () => {
                   disabled={deleteLoading}
                   className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-60 text-white font-black text-xs uppercase tracking-widest py-3 transition-all flex items-center justify-center gap-2"
                 >
-                  {deleteLoading ? (
-                    <svg
-                      className="w-4 h-4 animate-spin"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v8z"
-                      />
-                    </svg>
-                  ) : (
-                    "Yes, Remove"
-                  )}
+                  {deleteLoading ? <SpinnerSvg /> : "Yes, Remove"}
                 </button>
               </div>
             </div>
@@ -915,29 +877,7 @@ const Voters = () => {
                   disabled={deleteAllLoading}
                   className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white font-black text-xs uppercase tracking-widest py-3 transition-all flex items-center justify-center gap-2"
                 >
-                  {deleteAllLoading ? (
-                    <svg
-                      className="w-4 h-4 animate-spin"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v8z"
-                      />
-                    </svg>
-                  ) : (
-                    "Delete All"
-                  )}
+                  {deleteAllLoading ? <SpinnerSvg /> : "Delete All"}
                 </button>
               </div>
             </div>
@@ -945,7 +885,6 @@ const Voters = () => {
         </div>
       )}
 
-      {/* ── Toast ── */}
       <Toast toast={toast} />
     </div>
   );

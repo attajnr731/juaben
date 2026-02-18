@@ -15,13 +15,118 @@ import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
 import WorkOutlineOutlinedIcon from "@mui/icons-material/WorkOutlineOutlined";
 import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
 import PeopleOutlineOutlinedIcon from "@mui/icons-material/PeopleOutlineOutlined";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { Link } from "react-router-dom";
+import * as XLSX from "xlsx";
 
 const API = "https://juaben.onrender.com/api";
 
 const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
 });
+
+// ── Export comprehensive 3-sheet Excel report ──
+const exportResults = ({ positions, candidates, voters }) => {
+  const wb = XLSX.utils.book_new();
+  const date = new Date().toISOString().slice(0, 10);
+
+  // ── Sheet 1: Summary ──
+  const votedCount = voters.filter((v) => v.hasVoted).length;
+  const totalVotes = candidates.reduce((s, c) => s + (c.voteCount || 0), 0);
+  const turnout =
+    voters.length > 0 ? ((votedCount / voters.length) * 100).toFixed(1) : "0.0";
+
+  const summaryRows = [
+    { Metric: "Election Date", Value: date },
+    { Metric: "Total Positions", Value: positions.length },
+    { Metric: "Total Candidates", Value: candidates.length },
+    { Metric: "Total Registered Voters", Value: voters.length },
+    { Metric: "Voters Who Voted", Value: votedCount },
+    { Metric: "Pending Voters", Value: voters.length - votedCount },
+    { Metric: "Voter Turnout", Value: `${turnout}%` },
+    { Metric: "Total Votes Cast", Value: totalVotes },
+  ];
+
+  // Add winner per position
+  summaryRows.push({ Metric: "", Value: "" }); // spacer
+  summaryRows.push({ Metric: "— WINNERS —", Value: "" });
+  positions.forEach((pos) => {
+    const cands = candidates
+      .filter((c) => c.position === pos)
+      .sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0));
+    const winner = cands[0];
+    summaryRows.push({
+      Metric: pos,
+      Value: winner
+        ? `${winner.name} (${winner.voteCount || 0} votes)`
+        : "No votes",
+    });
+  });
+
+  const wsSummary = XLSX.utils.json_to_sheet(summaryRows);
+  wsSummary["!cols"] = [{ wch: 30 }, { wch: 36 }];
+  XLSX.utils.book_append_sheet(wb, wsSummary, "Summary");
+
+  // ── Sheet 2: Results by Position ──
+  const resultRows = [];
+  positions.forEach((pos) => {
+    const cands = candidates
+      .filter((c) => c.position === pos)
+      .sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0));
+
+    const posTotal = cands.reduce((s, c) => s + (c.voteCount || 0), 0);
+
+    cands.forEach((c, i) => {
+      const pct =
+        posTotal > 0
+          ? (((c.voteCount || 0) / posTotal) * 100).toFixed(1)
+          : "0.0";
+      resultRows.push({
+        Position: pos,
+        Rank: i + 1,
+        Candidate: c.name,
+        Votes: c.voteCount || 0,
+        "% of Position": `${pct}%`,
+        Winner: i === 0 ? "✓" : "",
+      });
+    });
+
+    // blank row between positions
+    resultRows.push({
+      Position: "",
+      Rank: "",
+      Candidate: "",
+      Votes: "",
+      "% of Position": "",
+      Winner: "",
+    });
+  });
+
+  const wsResults = XLSX.utils.json_to_sheet(resultRows);
+  wsResults["!cols"] = [
+    { wch: 24 },
+    { wch: 6 },
+    { wch: 28 },
+    { wch: 8 },
+    { wch: 16 },
+    { wch: 8 },
+  ];
+  XLSX.utils.book_append_sheet(wb, wsResults, "Results by Position");
+
+  // ── Sheet 3: Voters ──
+  const voterRows = voters.map((v, i) => ({
+    "#": i + 1,
+    "Student ID": v.studentId,
+    Name: v.name,
+    "Has Voted": v.hasVoted ? "Yes" : "No",
+  }));
+
+  const wsVoters = XLSX.utils.json_to_sheet(voterRows);
+  wsVoters["!cols"] = [{ wch: 5 }, { wch: 16 }, { wch: 28 }, { wch: 12 }];
+  XLSX.utils.book_append_sheet(wb, wsVoters, "Voters");
+
+  XLSX.writeFile(wb, `election_results_${date}.xlsx`);
+};
 
 // ── Avatar fallback ──
 const Avatar = ({ src, name, size = "md" }) => {
@@ -99,10 +204,8 @@ const Results = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const containerRef = useRef(null);
-  // Holds a ref for each position section so the observer and scrollToPosition can use it
   const sectionRefs = useRef([]);
 
-  // ── Fetch data ──
   const fetchData = useCallback(async () => {
     try {
       const [settingsRes, candidatesRes, votersRes] = await Promise.all([
@@ -137,68 +240,45 @@ const Results = () => {
     setTimeout(() => setRefreshing(false), 500);
   };
 
-  // ── IntersectionObserver: keep currentIndex in sync with whatever section
-  //    is scrolled into view — fixes "Next only works once" bug ──
   useEffect(() => {
     if (loading || positions.length === 0) return;
-
     const observers = [];
-
     sectionRefs.current.forEach((section, index) => {
       if (!section) return;
       const observer = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting) {
-            setCurrentIndex(index);
-          }
+          if (entry.isIntersecting) setCurrentIndex(index);
         },
-        {
-          root: containerRef.current,
-          // Fire when the section covers at least 50% of the scroll container
-          threshold: 0.5,
-        },
+        { root: containerRef.current, threshold: 0.5 },
       );
       observer.observe(section);
       observers.push(observer);
     });
-
     return () => observers.forEach((o) => o.disconnect());
   }, [loading, positions]);
 
-  // Group candidates by position
   const resultsByPosition = positions.map((pos) => {
     const cands = candidates
       .filter((c) => c.position === pos)
       .sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0));
-
     const totalVotes = cands.reduce((s, c) => s + (c.voteCount || 0), 0);
-    const winner = cands[0];
-
-    return { position: pos, candidates: cands, totalVotes, winner };
+    return { position: pos, candidates: cands, totalVotes, winner: cands[0] };
   });
 
-  // Overall stats
   const totalVotes = candidates.reduce((s, c) => s + (c.voteCount || 0), 0);
   const votedCount = voters.filter((v) => v.hasVoted).length;
   const turnout =
     voters.length > 0 ? Math.round((votedCount / voters.length) * 100) : 0;
 
-  // ── Navigate to position ──
   const scrollToPosition = (index) => {
     const section = sectionRefs.current[index];
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth", block: "start" });
-      // currentIndex will be updated by the IntersectionObserver
-    }
+    if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const handleNext = () => {
-    if (currentIndex < positions.length - 1) {
-      scrollToPosition(currentIndex + 1);
-    }
+    if (currentIndex < positions.length - 1) scrollToPosition(currentIndex + 1);
   };
 
-  // ── Loading state ──
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -210,7 +290,6 @@ const Results = () => {
     );
   }
 
-  // ── No positions ──
   if (positions.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 px-4 md:px-8 py-8">
@@ -249,7 +328,7 @@ const Results = () => {
             </div>
           </div>
 
-          {/* Stats & refresh */}
+          {/* Stats, export & refresh */}
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-4 text-xs">
               <div className="flex items-center gap-1.5">
@@ -275,6 +354,18 @@ const Results = () => {
                 </span>
               </div>
             </div>
+
+            {/* ── Export button ── */}
+            <button
+              onClick={() => exportResults({ positions, candidates, voters })}
+              disabled={candidates.length === 0}
+              title="Export full report to Excel"
+              className="flex items-center gap-1.5 border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-3 py-1.5 text-xs font-black uppercase tracking-widest transition-all duration-300 disabled:opacity-40"
+            >
+              <FileDownloadOutlinedIcon style={{ fontSize: 16 }} />
+              <span className="hidden sm:inline">Export</span>
+            </button>
+
             <button
               onClick={refresh}
               disabled={refreshing}
@@ -307,10 +398,8 @@ const Results = () => {
         {resultsByPosition.map((result, posIndex) => {
           const isLast = posIndex === positions.length - 1;
           const hasVotes = result.totalVotes > 0;
-
-          // Prepare chart data
           const chartData = result.candidates.map((c) => ({
-            name: c.name.split(" ")[0], // First name only for chart
+            name: c.name.split(" ")[0],
             votes: c.voteCount || 0,
             fullName: c.name,
           }));
@@ -318,7 +407,6 @@ const Results = () => {
           return (
             <section
               key={posIndex}
-              // Attach each section to sectionRefs so the observer and scrollToPosition can use it
               ref={(el) => (sectionRefs.current[posIndex] = el)}
               className="w-full min-h-screen snap-start flex items-center justify-center px-4 py-16"
             >
@@ -338,7 +426,6 @@ const Results = () => {
                 </div>
 
                 {!hasVotes ? (
-                  // No votes yet
                   <div className="text-center py-16">
                     <p className="text-gray-300 text-sm">
                       No votes cast for this position yet.
@@ -346,7 +433,7 @@ const Results = () => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-                    {/* Left: Winner card */}
+                    {/* Winner card */}
                     <div className="bg-white border-2 border-[#c8a84b] shadow-xl p-8 flex flex-col items-center text-center gap-4">
                       <div className="w-16 h-16 rounded-full bg-[#FFD700] flex items-center justify-center shadow-lg">
                         <EmojiEventsOutlinedIcon
@@ -391,7 +478,7 @@ const Results = () => {
                       </div>
                     </div>
 
-                    {/* Right: Chart */}
+                    {/* Chart */}
                     <div className="bg-white border border-gray-100 shadow-sm p-6 flex flex-col">
                       <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
                         <WorkOutlineOutlinedIcon
@@ -422,7 +509,7 @@ const Results = () => {
                             <YAxis tick={{ fontSize: 11, fill: "#6b7280" }} />
                             <Tooltip content={<CustomTooltip />} />
                             <Bar dataKey="votes" radius={[4, 4, 0, 0]}>
-                              {chartData.map((entry, index) => (
+                              {chartData.map((_, index) => (
                                 <Cell
                                   key={`cell-${index}`}
                                   fill={index === 0 ? "#c8a84b" : "#1a3a6e"}
@@ -510,14 +597,14 @@ const Results = () => {
                   </div>
                 )}
 
-                {/* Navigation button */}
+                {/* Navigation */}
                 <div className="flex justify-center">
                   {!isLast ? (
                     <button
                       onClick={handleNext}
                       className="flex items-center gap-2 bg-[#1a3a6e] hover:bg-[#c8a84b] text-white font-black text-sm uppercase tracking-widest px-10 py-4 transition-all duration-300 shadow-lg hover:shadow-xl"
                     >
-                      Next Position
+                      Next Position{" "}
                       <ArrowDownwardOutlinedIcon style={{ fontSize: 20 }} />
                     </button>
                   ) : (

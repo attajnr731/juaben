@@ -12,12 +12,35 @@ import PeopleOutlineOutlinedIcon from "@mui/icons-material/PeopleOutlineOutlined
 import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
 import FilterListOutlinedIcon from "@mui/icons-material/FilterListOutlined";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import * as XLSX from "xlsx";
 
 const API = "https://juaben.onrender.com/api";
 
 const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
 });
+
+// ── Export candidates to Excel ──
+const exportCandidates = (candidates) => {
+  const rows = candidates.map((c, i) => ({
+    "#": i + 1,
+    Name: c.name,
+    Position: c.position,
+    Votes: c.voteCount ?? 0,
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(rows);
+
+  // Column widths
+  ws["!cols"] = [{ wch: 5 }, { wch: 28 }, { wch: 24 }, { wch: 10 }];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Candidates");
+
+  const date = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `candidates_${date}.xlsx`);
+};
 
 // ── Toast ──
 const Toast = ({ toast }) => {
@@ -56,7 +79,7 @@ const Stat = ({ icon, label, value, accent }) => (
   </div>
 );
 
-// ── Avatar — uses profilePicture, falls back to initials ──
+// ── Avatar ──
 const Avatar = ({ src, name, size = "md" }) => {
   const [err, setErr] = useState(false);
   const initials = name
@@ -116,7 +139,6 @@ const ImagePicker = ({ preview, onChange }) => {
             </p>
           </div>
         )}
-        {/* ✅ field name matches uploadToR2.single("profilePicture") */}
         <input
           ref={ref}
           type="file"
@@ -241,7 +263,7 @@ const Candidates = () => {
     setEditTarget(c);
     setForm({ name: c.name, position: c.position });
     setImageFile(null);
-    setImagePreview(c.profilePicture || ""); // ✅ use profilePicture
+    setImagePreview(c.profilePicture || "");
     setFormErrors({});
     setModalOpen(true);
   };
@@ -280,7 +302,6 @@ const Candidates = () => {
       const fd = new FormData();
       fd.append("name", form.name.trim());
       fd.append("position", form.position.trim());
-      // ✅ key must match uploadToR2.single("profilePicture")
       if (imageFile) fd.append("profilePicture", imageFile);
 
       const url = editTarget
@@ -355,9 +376,6 @@ const Candidates = () => {
           </td>
           <td className="px-6 py-4">
             <div className="w-28 h-5 bg-gray-100 rounded animate-pulse" />
-          </td>
-          <td className="px-6 py-4">
-            <div className="w-16 h-3 bg-gray-100 rounded animate-pulse" />
           </td>
           <td className="px-6 py-4">
             <div className="w-12 h-5 bg-gray-100 rounded animate-pulse" />
@@ -450,6 +468,17 @@ const Candidates = () => {
               <RefreshOutlinedIcon style={{ fontSize: 20 }} />
             </button>
 
+            {/* ── Export button ── */}
+            <button
+              onClick={() => exportCandidates(candidates)}
+              disabled={candidates.length === 0}
+              title="Export to Excel"
+              className="flex items-center gap-1.5 border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all duration-300 disabled:opacity-40"
+            >
+              <FileDownloadOutlinedIcon style={{ fontSize: 17 }} />
+              Export
+            </button>
+
             <button
               onClick={openAdd}
               className="flex items-center gap-1.5 bg-[#1a3a6e] hover:bg-[#c8a84b] text-white px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-sm"
@@ -514,7 +543,6 @@ const Candidates = () => {
                   <th className="text-left px-6 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                     Position
                   </th>
-
                   <th className="text-left px-6 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                     Votes
                   </th>
@@ -529,7 +557,7 @@ const Candidates = () => {
                 ) : filtered.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={4}
                       className="text-center py-16 text-gray-300 text-sm"
                     >
                       {search || filterPos
@@ -545,7 +573,6 @@ const Candidates = () => {
                     >
                       <td className="px-6 py-3.5">
                         <div className="flex items-center gap-3">
-                          {/* ✅ use profilePicture */}
                           <Avatar src={c.profilePicture} name={c.name} />
                           <span className="font-semibold text-gray-700">
                             {c.name}
@@ -560,7 +587,6 @@ const Candidates = () => {
                           {c.position}
                         </span>
                       </td>
-
                       <td className="px-6 py-3.5">
                         <span className="font-black text-[#1a3a6e] text-sm">
                           {c.voteCount ?? 0}
@@ -640,7 +666,6 @@ const Candidates = () => {
                 onChange={handleImageChange}
               />
 
-              {/* Name */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-black text-[#1a3a6e] uppercase tracking-widest">
                   Full Name
@@ -652,18 +677,13 @@ const Candidates = () => {
                     setFormErrors((p) => ({ ...p, name: "" }));
                   }}
                   placeholder="e.g. Kwame Asante"
-                  className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors ${
-                    formErrors.name
-                      ? "border-red-400 bg-red-50"
-                      : "border-gray-200 focus:border-[#1a3a6e]"
-                  }`}
+                  className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors ${formErrors.name ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[#1a3a6e]"}`}
                 />
                 {formErrors.name && (
                   <p className="text-red-500 text-xs">{formErrors.name}</p>
                 )}
               </div>
 
-              {/* Position */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-black text-[#1a3a6e] uppercase tracking-widest">
                   Position
@@ -675,11 +695,7 @@ const Candidates = () => {
                       setForm((p) => ({ ...p, position: e.target.value }));
                       setFormErrors((p) => ({ ...p, position: "" }));
                     }}
-                    className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 bg-white transition-colors ${
-                      formErrors.position
-                        ? "border-red-400 bg-red-50"
-                        : "border-gray-200 focus:border-[#1a3a6e]"
-                    }`}
+                    className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 bg-white transition-colors ${formErrors.position ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[#1a3a6e]"}`}
                   >
                     <option value="">Select a position…</option>
                     {positions.map((p) => (
@@ -696,11 +712,7 @@ const Candidates = () => {
                       setFormErrors((p) => ({ ...p, position: "" }));
                     }}
                     placeholder="e.g. School Prefect"
-                    className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors ${
-                      formErrors.position
-                        ? "border-red-400 bg-red-50"
-                        : "border-gray-200 focus:border-[#1a3a6e]"
-                    }`}
+                    className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors ${formErrors.position ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[#1a3a6e]"}`}
                   />
                 )}
                 {formErrors.position && (
@@ -760,7 +772,6 @@ const Candidates = () => {
             </div>
             <div className="px-6 py-6">
               <div className="flex items-center gap-4 mb-5">
-                {/* ✅ profilePicture */}
                 <Avatar
                   src={deleteTarget.profilePicture}
                   name={deleteTarget.name}
