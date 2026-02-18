@@ -13,8 +13,10 @@ import Insights from "./pages/Insights";
 import Settings from "./pages/Settings";
 import Voters from "./pages/Voters";
 import Candidates from "./pages/Candidates";
+import Results from "./pages/Results";
 import RootLayout from "./layout/RootLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import VotingProtectedRoute from "./components/VotingProtectedRoute";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -22,10 +24,14 @@ const App = () => {
       <>
         {/* Public routes */}
         <Route path="/" element={<Welcome />} />
-        <Route path="vote-login" element={<VoteLogin />} />
         <Route path="login" element={<Login />} />
-        <Route path="vote" element={<Vote />} />
-        <Route path="vote-success" element={<VoteSuccess />} />
+
+        {/* Voting routes — protected by passcode */}
+        <Route element={<VotingProtectedRoute />}>
+          <Route path="vote-login" element={<VoteLogin />} />
+          <Route path="vote" element={<Vote />} />
+          <Route path="vote-success" element={<VoteSuccess />} />
+        </Route>
 
         {/* Protected admin routes — ProtectedRoute checks for token */}
         <Route element={<ProtectedRoute />}>
@@ -34,6 +40,7 @@ const App = () => {
             <Route path="settings" element={<Settings />} />
             <Route path="voters" element={<Voters />} />
             <Route path="candidates" element={<Candidates />} />
+            <Route path="results" element={<Results />} />
           </Route>
         </Route>
       </>,

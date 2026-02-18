@@ -49,6 +49,8 @@ const Vote = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const containerRef = useRef(null);
+  // Holds a ref for each position section so we can scroll to them and observe them
+  const sectionRefs = useRef([]);
 
   // Redirect if no voter data
   if (!voter) {
@@ -87,6 +89,34 @@ const Vote = () => {
     fetchData();
   }, []);
 
+  // ── IntersectionObserver: keep currentIndex in sync with whatever section
+  //    is scrolled into view — this fixes the "Next only works once" bug ──
+  useEffect(() => {
+    if (loading || positions.length === 0) return;
+
+    const observers = [];
+
+    sectionRefs.current.forEach((section, index) => {
+      if (!section) return;
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setCurrentIndex(index);
+          }
+        },
+        {
+          root: containerRef.current,
+          // Fire when the section covers at least 50% of the scroll container
+          threshold: 0.5,
+        }
+      );
+      observer.observe(section);
+      observers.push(observer);
+    });
+
+    return () => observers.forEach((o) => o.disconnect());
+  }, [loading, positions]);
+
   // Group candidates by position
   const candidatesByPosition = positions.map((pos) =>
     candidates.filter((c) => c.position === pos)
@@ -94,12 +124,10 @@ const Vote = () => {
 
   // ── Navigate to position ──
   const scrollToPosition = (index) => {
-    if (containerRef.current) {
-      const section = containerRef.current.children[index];
-      if (section) {
-        section.scrollIntoView({ behavior: "smooth", block: "start" });
-        setCurrentIndex(index);
-      }
+    const section = sectionRefs.current[index];
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+      // currentIndex will be updated by the IntersectionObserver
     }
   };
 
@@ -230,6 +258,8 @@ const Vote = () => {
           return (
             <section
               key={posIndex}
+              // Attach each section to sectionRefs so the observer and scrollToPosition can use it
+              ref={(el) => (sectionRefs.current[posIndex] = el)}
               className="w-full min-h-screen snap-start flex items-center justify-center px-4 py-16"
             >
               <div className="w-full max-w-4xl">

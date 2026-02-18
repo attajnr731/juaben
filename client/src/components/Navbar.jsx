@@ -22,6 +22,11 @@ const authHeaders = () => ({
 
 const navLinks = [
   {
+    label: "Insight",
+    to: "/admin/insights",
+    icon: <BarChartOutlinedIcon style={{ fontSize: 17 }} />,
+  },
+  {
     label: "Candidates",
     to: "/admin/candidates",
     icon: <PeopleOutlineOutlinedIcon style={{ fontSize: 17 }} />,
@@ -30,11 +35,6 @@ const navLinks = [
     label: "Voters",
     to: "/admin/voters",
     icon: <HowToVoteOutlinedIcon style={{ fontSize: 17 }} />,
-  },
-  {
-    label: "Insight",
-    to: "/admin/insights",
-    icon: <BarChartOutlinedIcon style={{ fontSize: 17 }} />,
   },
   {
     label: "Results",
@@ -116,7 +116,8 @@ const Navbar = ({ onMenuToggle }) => {
       const correctPasscode = data.votingPasscode || "123456"; // fallback to default
 
       if (password === correctPasscode) {
-        // Correct password → navigate
+        // Correct password → store in sessionStorage and navigate
+        sessionStorage.setItem("votingAuthorized", "true");
         closeVoteModal();
         navigate("/vote-login");
       } else {
