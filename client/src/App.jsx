@@ -5,6 +5,8 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import Welcome from "./pages/Welcome";
+import VoteLogin from "./pages/VoteLogin";
+import VoteSuccess from "./pages/VoteSuccess";
 import Vote from "./pages/Vote";
 import Login from "./pages/Login";
 import Insights from "./pages/Insights";
@@ -20,8 +22,10 @@ const App = () => {
       <>
         {/* Public routes */}
         <Route path="/" element={<Welcome />} />
-        <Route path="vote" element={<Vote />} />
+        <Route path="vote-login" element={<VoteLogin />} />
         <Route path="login" element={<Login />} />
+        <Route path="vote" element={<Vote />} />
+        <Route path="vote-success" element={<VoteSuccess />} />
 
         {/* Protected admin routes — ProtectedRoute checks for token */}
         <Route element={<ProtectedRoute />}>

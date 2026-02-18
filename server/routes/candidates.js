@@ -6,6 +6,7 @@ import {
   updateCandidate,
   deleteCandidate,
   deleteAllCandidates,
+  incrementVote,
 } from "../controllers/candidates.js";
 
 const router = express.Router();
@@ -15,5 +16,6 @@ router.post("/", uploadToR2.single("profilePicture"), addCandidate); // ✅ "pro
 router.put("/:id", uploadToR2.single("profilePicture"), updateCandidate); // ✅ same field name
 router.delete("/", deleteAllCandidates);
 router.delete("/:id", deleteCandidate);
+router.patch("/:id/vote", incrementVote); // Increment vote count
 
 export default router;

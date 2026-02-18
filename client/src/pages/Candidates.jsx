@@ -371,7 +371,7 @@ const Candidates = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 md:px-8 py-8">
-      <div className="max-w-6xl mx-auto flex flex-col gap-6">
+      <div className="max-w-7xl mx-auto flex flex-col gap-6">
         {/* ── Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>

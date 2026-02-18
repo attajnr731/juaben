@@ -173,3 +173,23 @@ export const deleteAllCandidates = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+// ─────────────────────────────────────
+// PATCH /api/candidates/:id/vote
+// Increment voteCount by 1
+// ─────────────────────────────────────
+export const incrementVote = async (req, res) => {
+  try {
+    const candidate = await Candidate.findById(req.params.id);
+    if (!candidate)
+      return res.status(404).json({ message: "Candidate not found." });
+
+    candidate.voteCount = (candidate.voteCount || 0) + 1;
+    await candidate.save();
+
+    return res.status(200).json({ message: "Vote recorded.", candidate });
+  } catch (err) {
+    console.error("incrementVote error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};

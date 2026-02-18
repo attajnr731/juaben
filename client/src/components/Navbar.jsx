@@ -9,9 +9,16 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PeopleOutlineOutlinedIcon from "@mui/icons-material/PeopleOutlineOutlined";
 import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
-import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
+import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
+import BubbleChartOutlinedIcon from "@mui/icons-material/BubbleChartOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 const API_BASE = "http://localhost:3000/api";
+
+const authHeaders = () => ({
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+});
 
 const navLinks = [
   {
@@ -30,9 +37,9 @@ const navLinks = [
     icon: <BarChartOutlinedIcon style={{ fontSize: 17 }} />,
   },
   {
-    label: "History",
-    to: "/admin/history",
-    icon: <HistoryOutlinedIcon style={{ fontSize: 17 }} />,
+    label: "Results",
+    to: "/admin/results",
+    icon: <BubbleChartOutlinedIcon style={{ fontSize: 17 }} />,
   },
 ];
 
@@ -42,6 +49,13 @@ const Navbar = ({ onMenuToggle }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const profileRef = useRef(null);
+
+  // ── Password modal for voting ──
+  const [showPassModal, setShowPassModal] = useState(false);
+  const [password, setPassword] = useState("");
+  const [passError, setPassError] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [shaking, setShaking] = useState(false);
 
   useEffect(() => {
     const handler = (e) => {
@@ -58,14 +72,10 @@ const Navbar = ({ onMenuToggle }) => {
     try {
       await fetch(`${API_BASE}/auth/logout`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-        },
+        headers: authHeaders(),
         credentials: "include",
       });
     } catch (err) {
-      // Even if the request fails, clear locally and redirect
       console.warn("Logout request failed:", err);
     } finally {
       localStorage.removeItem("adminToken");
@@ -74,8 +84,70 @@ const Navbar = ({ onMenuToggle }) => {
     }
   };
 
+  // ── Open password modal ──
+  const openVoteModal = () => {
+    setShowPassModal(true);
+    setPassword("");
+    setPassError("");
+    setShaking(false);
+  };
+
+  // ── Close password modal ──
+  const closeVoteModal = () => {
+    setShowPassModal(false);
+    setPassword("");
+    setPassError("");
+    setShaking(false);
+  };
+
+  // ── Verify password against DB ──
+  const handleVoteSubmit = async (e) => {
+    e.preventDefault();
+    setVerifying(true);
+    setPassError("");
+
+    try {
+      // Fetch the voting passcode from settings
+      const res = await fetch(`${API_BASE}/settings`, { headers: authHeaders() });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error("Failed to fetch settings.");
+
+      const correctPasscode = data.votingPasscode || "123456"; // fallback to default
+
+      if (password === correctPasscode) {
+        // Correct password → navigate
+        closeVoteModal();
+        navigate("/vote-login");
+      } else {
+        // Wrong password → shake and show error
+        setPassError("Incorrect passcode. Please try again.");
+        setShaking(true);
+        setPassword("");
+        setTimeout(() => setShaking(false), 500);
+      }
+    } catch (err) {
+      setPassError(err.message || "Server error. Please try again.");
+      setShaking(true);
+      setTimeout(() => setShaking(false), 500);
+    } finally {
+      setVerifying(false);
+    }
+  };
+
   return (
     <>
+      <style>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          20%       { transform: translateX(-10px); }
+          40%       { transform: translateX(10px); }
+          60%       { transform: translateX(-6px); }
+          80%       { transform: translateX(6px); }
+        }
+        .shake { animation: shake 0.45s ease; }
+      `}</style>
+
       <header className="w-full h-16 bg-white border-b border-gray-100 shadow-sm flex items-center px-4 md:px-6 gap-4 z-40 sticky top-0">
         {/* ── LEFT: Hamburger + Brand ── */}
         <div className="flex items-center gap-3 min-w-0">
@@ -127,6 +199,15 @@ const Navbar = ({ onMenuToggle }) => {
               {label}
             </NavLink>
           ))}
+
+          {/* Proceed to Vote button (triggers modal) */}
+          <button
+            onClick={openVoteModal}
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all duration-200 border-b-2 text-gray-400 border-transparent hover:text-[#1a3a6e] hover:bg-gray-50"
+          >
+            <HowToRegOutlinedIcon style={{ fontSize: 17 }} />
+            Proceed to Vote
+          </button>
         </nav>
 
         <div className="flex-1" />
@@ -153,7 +234,6 @@ const Navbar = ({ onMenuToggle }) => {
           {/* Dropdown */}
           {profileOpen && (
             <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-100 shadow-xl z-50">
-              {/* user info */}
               <div className="px-4 py-4 border-b border-gray-100">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-[#1a3a6e] flex items-center justify-center text-white text-sm font-black">
@@ -198,7 +278,6 @@ const Navbar = ({ onMenuToggle }) => {
                 ))}
               </ul>
 
-              {/* Logout */}
               <div className="border-t border-gray-100 py-1">
                 <button
                   onClick={handleLogout}
@@ -263,6 +342,18 @@ const Navbar = ({ onMenuToggle }) => {
               </NavLink>
             ))}
 
+            {/* Proceed to Vote (mobile) */}
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                openVoteModal();
+              }}
+              className="flex items-center gap-3 px-6 py-3.5 text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-[#1a3a6e] hover:bg-gray-50 transition-colors border-l-4 border-transparent"
+            >
+              <HowToRegOutlinedIcon style={{ fontSize: 17 }} />
+              Proceed to Vote
+            </button>
+
             {/* Mobile logout */}
             <button
               onClick={handleLogout}
@@ -273,6 +364,99 @@ const Navbar = ({ onMenuToggle }) => {
               {loggingOut ? "Signing out…" : "Sign Out"}
             </button>
           </nav>
+        </div>
+      )}
+
+      {/* ══════════════════════════════
+          VOTING PASSWORD MODAL
+      ══════════════════════════════ */}
+      {showPassModal && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
+          onClick={(e) => e.target === e.currentTarget && closeVoteModal()}
+        >
+          <div className={`bg-white w-full max-w-sm shadow-2xl ${shaking ? "shake" : ""}`}>
+            {/* Header */}
+            <div className="bg-[#1a3a6e] px-6 py-5 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <LockOutlinedIcon style={{ fontSize: 18 }} className="text-[#c8a84b]" />
+                <span className="text-white font-black text-sm uppercase tracking-widest">
+                  Voting Access
+                </span>
+              </div>
+              <button
+                onClick={closeVoteModal}
+                className="text-white/40 hover:text-white text-2xl leading-none transition-colors"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-6">
+              <p className="text-gray-400 text-sm mb-5 leading-relaxed">
+                Enter the voting passcode to proceed to the student voting portal.
+              </p>
+
+              <form onSubmit={handleVoteSubmit} className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[#1a3a6e] text-[10px] font-black uppercase tracking-widest">
+                    Passcode
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setPassError("");
+                    }}
+                    placeholder="••••••"
+                    autoFocus
+                    disabled={verifying}
+                    className={`w-full border-2 outline-none px-4 py-3 text-sm text-gray-700 transition-colors ${
+                      passError
+                        ? "border-red-400 bg-red-50"
+                        : "border-gray-200 focus:border-[#1a3a6e]"
+                    }`}
+                  />
+                  {passError && (
+                    <p className="text-red-500 text-xs flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                      {passError}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={closeVoteModal}
+                    disabled={verifying}
+                    className="flex-1 border-2 border-gray-200 hover:border-gray-300 text-gray-400 hover:text-gray-600 font-bold text-xs uppercase tracking-widest py-3 transition-all disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={verifying}
+                    className="flex-1 bg-[#1a3a6e] hover:bg-[#c8a84b] disabled:opacity-60 text-white font-bold text-xs uppercase tracking-widest py-3 transition-all duration-300 flex items-center justify-center gap-2"
+                  >
+                    {verifying ? (
+                      <>
+                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                        Verifying…
+                      </>
+                    ) : (
+                      "Proceed →"
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       )}
     </>
