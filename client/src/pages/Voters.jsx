@@ -4,6 +4,7 @@ import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import DeleteSweepOutlinedIcon from "@mui/icons-material/DeleteSweepOutlined";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
 import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
@@ -91,6 +92,9 @@ const Voters = () => {
 
   const [deleteAllOpen, setDeleteAllOpen] = useState(false);
   const [deleteAllLoading, setDeleteAllLoading] = useState(false);
+
+  const [resetAllOpen, setResetAllOpen] = useState(false);
+  const [resetAllLoading, setResetAllLoading] = useState(false);
 
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkPreview, setBulkPreview] = useState([]);
@@ -214,6 +218,25 @@ const Voters = () => {
     }
   };
 
+  const doResetAll = async () => {
+    setResetAllLoading(true);
+    try {
+      const res = await fetch(`${API}/voters/reset`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      setVoters([]);
+      showToast(data.message);
+    } catch (err) {
+      showToast(err.message || "Failed to reset voters.", "error");
+    } finally {
+      setResetAllLoading(false);
+      setResetAllOpen(false);
+    }
+  };
+
   const handleFile = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -315,27 +338,31 @@ const Voters = () => {
     <div className="min-h-screen bg-gray-50 px-4 md:px-8 py-8">
       <div className="max-w-7xl mx-auto flex flex-col gap-6">
         {/* ── Header ── */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-gray-100 pb-6">
+          {/* ───── Left: Title Section ───── */}
           <div>
             <p className="text-[#c8a84b] text-[10px] font-black uppercase tracking-widest mb-1">
               Admin Panel
             </p>
+
             <h1
               className="text-[#1a3a6e] font-black uppercase text-2xl md:text-3xl"
               style={{ fontFamily: "'Georgia', serif" }}
             >
               Voters
             </h1>
+
             <p className="text-gray-400 text-sm mt-1">
               Manage registered voters for the election.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Search */}
-            <div className="flex items-center">
+          {/* ───── Right: Actions Section ───── */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            {/* Search + Refresh group */}
+            <div className="flex items-center gap-2">
               {searchOpen ? (
-                <div className="flex items-center border-2 border-[#1a3a6e] bg-white">
+                <div className="flex items-center border border-gray-300 bg-white rounded-md shadow-sm">
                   <span className="pl-3 text-gray-400">
                     <SearchOutlinedIcon style={{ fontSize: 18 }} />
                   </span>
@@ -344,71 +371,88 @@ const Voters = () => {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Search ID or name…"
-                    className="w-44 outline-none px-3 py-2 text-sm text-gray-700 placeholder-gray-300 bg-transparent"
+                    className="w-48 outline-none px-3 py-2 text-sm text-gray-700 placeholder-gray-300 bg-transparent"
                   />
                   <button
                     onClick={() => {
                       setSearchOpen(false);
                       setSearch("");
                     }}
-                    className="pr-3 text-gray-400 hover:text-[#1a3a6e] transition-colors"
+                    className="pr-3 text-gray-400 hover:text-[#1a3a6e]"
                   >
-                    <CloseOutlinedIcon style={{ fontSize: 15 }} />
+                    <CloseOutlinedIcon style={{ fontSize: 16 }} />
                   </button>
                 </div>
               ) : (
                 <button
                   onClick={() => setSearchOpen(true)}
-                  className="p-2.5 border-2 border-gray-200 hover:border-[#1a3a6e] text-gray-400 hover:text-[#1a3a6e] transition-all"
+                  className="p-2.5 border border-gray-300 rounded-md text-gray-500 hover:border-[#1a3a6e] hover:text-[#1a3a6e] transition"
                 >
                   <SearchOutlinedIcon style={{ fontSize: 20 }} />
                 </button>
               )}
+
+              <button
+                onClick={() => fetchVoters(search)}
+                title="Refresh"
+                className="p-2.5 border border-gray-300 rounded-md text-gray-500 hover:border-[#1a3a6e] hover:text-[#1a3a6e] transition"
+              >
+                <RefreshOutlinedIcon style={{ fontSize: 20 }} />
+              </button>
             </div>
 
-            <button
-              onClick={() => fetchVoters(search)}
-              title="Refresh"
-              className="p-2.5 border-2 border-gray-200 hover:border-[#1a3a6e] text-gray-400 hover:text-[#1a3a6e] transition-all"
-            >
-              <RefreshOutlinedIcon style={{ fontSize: 20 }} />
-            </button>
+            {/* Divider */}
+            <div className="hidden sm:block w-px h-8 bg-gray-200" />
 
-            {/* ── Export button ── */}
-            <button
-              onClick={() => exportVoters(voters)}
-              disabled={voters.length === 0}
-              title="Export to Excel"
-              className="flex items-center gap-1.5 border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all duration-300 disabled:opacity-40"
-            >
-              <FileDownloadOutlinedIcon style={{ fontSize: 17 }} />
-              Export
-            </button>
+            {/* Secondary Actions */}
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => exportVoters(voters)}
+                disabled={voters.length === 0}
+                className="flex items-center gap-2 border border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition disabled:opacity-40"
+              >
+                <FileDownloadOutlinedIcon style={{ fontSize: 16 }} />
+                Export
+              </button>
 
+              <button
+                onClick={() => setBulkOpen(true)}
+                className="flex items-center gap-2 border border-[#1a3a6e] text-[#1a3a6e] hover:bg-[#1a3a6e] hover:text-white px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition"
+              >
+                <UploadFileOutlinedIcon style={{ fontSize: 16 }} />
+                Bulk Upload
+              </button>
+            </div>
+
+            {/* Primary Action */}
             <button
               onClick={() => setAddOpen(true)}
-              className="flex items-center gap-1.5 bg-[#1a3a6e] hover:bg-[#c8a84b] text-white px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-sm"
+              className="flex items-center gap-2 bg-[#1a3a6e] hover:bg-[#c8a84b] text-white px-5 py-2.5 text-xs font-black uppercase tracking-widest rounded-md shadow-md transition"
             >
               <PersonAddOutlinedIcon style={{ fontSize: 17 }} />
               Add Voter
             </button>
 
-            <button
-              onClick={() => setBulkOpen(true)}
-              className="flex items-center gap-1.5 border-2 border-[#1a3a6e] text-[#1a3a6e] hover:bg-[#1a3a6e] hover:text-white px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all duration-300"
-            >
-              <UploadFileOutlinedIcon style={{ fontSize: 17 }} />
-              Bulk Upload
-            </button>
+            {/* Danger Actions */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setResetAllOpen(true)}
+                disabled={voters.length === 0}
+                className="flex items-center gap-2 border border-yellow-400 text-yellow-600 hover:bg-yellow-50 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition disabled:opacity-40"
+              >
+                <RestartAltIcon style={{ fontSize: 16 }} />
+                Reset Votes
+              </button>
 
-            <button
-              onClick={() => setDeleteAllOpen(true)}
-              disabled={voters.length === 0}
-              className="flex items-center gap-1.5 border-2 border-red-200 text-red-400 hover:border-red-500 hover:bg-red-50 px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all disabled:opacity-40"
-            >
-              <DeleteSweepOutlinedIcon style={{ fontSize: 17 }} />
-              Delete All
-            </button>
+              <button
+                onClick={() => setDeleteAllOpen(true)}
+                disabled={voters.length === 0}
+                className="flex items-center gap-2 border border-red-400 text-red-600 hover:bg-red-50 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition disabled:opacity-40"
+              >
+                <DeleteSweepOutlinedIcon style={{ fontSize: 16 }} />
+                Delete All
+              </button>
+            </div>
           </div>
         </div>
 
@@ -878,6 +922,49 @@ const Voters = () => {
                   className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white font-black text-xs uppercase tracking-widest py-3 transition-all flex items-center justify-center gap-2"
                 >
                   {deleteAllLoading ? <SpinnerSvg /> : "Delete All"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── RESET ALL MODAL ── */}
+      {resetAllOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4"
+          onClick={(e) =>
+            e.target === e.currentTarget && setResetAllOpen(false)
+          }
+        >
+          <div className="bg-white w-full max-w-sm shadow-2xl">
+            <div className="bg-yellow-600 px-6 py-4 flex items-center gap-2">
+              <RefreshOutlinedIcon
+                style={{ fontSize: 20 }}
+                className="text-white"
+              />
+              <span className="text-white font-black text-sm uppercase tracking-widest">
+                Reset All Voters
+              </span>
+            </div>
+            <div className="px-6 py-6">
+              <p className="text-gray-600 text-sm mb-2">
+                This will reset all voters to "not voted". This cannot be
+                undone.
+              </p>
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setResetAllOpen(false)}
+                  className="flex-1 border-2 border-gray-200 hover:border-gray-300 text-gray-400 font-bold text-xs uppercase tracking-widest py-3 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={doResetAll}
+                  disabled={resetAllLoading}
+                  className="flex-1 bg-yellow-600 hover:bg-yellow-700 disabled:opacity-60 text-white font-black text-xs uppercase tracking-widest py-3 transition-all flex items-center justify-center gap-2"
+                >
+                  {resetAllLoading ? <SpinnerSvg /> : "Reset All"}
                 </button>
               </div>
             </div>

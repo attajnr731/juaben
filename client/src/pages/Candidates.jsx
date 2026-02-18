@@ -15,25 +15,51 @@ import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import * as XLSX from "xlsx";
 
-const API = "https://juaben.onrender.com/api";
+const API = "http://localhost:3000/api";
 
 const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
 });
 
-// ── Export candidates to Excel ──
+// ── Export candidates to Excel with percentage ──
 const exportCandidates = (candidates) => {
-  const rows = candidates.map((c, i) => ({
-    "#": i + 1,
-    Name: c.name,
-    Position: c.position,
-    Votes: c.voteCount ?? 0,
-  }));
+  // Group by position to calculate percentages
+  const byPosition = candidates.reduce((acc, c) => {
+    if (!acc[c.position]) acc[c.position] = [];
+    acc[c.position].push(c);
+    return acc;
+  }, {});
+
+  const rows = candidates.map((c, i) => {
+    const positionCandidates = byPosition[c.position] || [];
+    const positionTotal = positionCandidates.reduce(
+      (s, pc) => s + (pc.voteCount || 0),
+      0,
+    );
+    const percentage =
+      positionTotal > 0
+        ? (((c.voteCount || 0) / positionTotal) * 100).toFixed(1)
+        : "0.0";
+
+    return {
+      "#": i + 1,
+      Name: c.name,
+      Position: c.position,
+      Votes: c.voteCount ?? 0,
+      "% in Position": percentage + "%",
+    };
+  });
 
   const ws = XLSX.utils.json_to_sheet(rows);
 
   // Column widths
-  ws["!cols"] = [{ wch: 5 }, { wch: 28 }, { wch: 24 }, { wch: 10 }];
+  ws["!cols"] = [
+    { wch: 5 },
+    { wch: 28 },
+    { wch: 24 },
+    { wch: 10 },
+    { wch: 14 },
+  ];
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Candidates");
@@ -242,7 +268,21 @@ const Candidates = () => {
     fetchPositions();
   }, [fetchCandidates, fetchPositions]);
 
-  const filtered = candidates.filter(
+  // Calculate percentages per position
+  const candidatesWithPercentage = candidates.map((c) => {
+    const positionCandidates = candidates.filter(
+      (pc) => pc.position === c.position,
+    );
+    const positionTotal = positionCandidates.reduce(
+      (s, pc) => s + (pc.voteCount || 0),
+      0,
+    );
+    const percentage =
+      positionTotal > 0 ? ((c.voteCount || 0) / positionTotal) * 100 : 0;
+    return { ...c, percentage };
+  });
+
+  const filtered = candidatesWithPercentage.filter(
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
       c.position.toLowerCase().includes(search.toLowerCase()),
@@ -380,6 +420,9 @@ const Candidates = () => {
           <td className="px-6 py-4">
             <div className="w-12 h-5 bg-gray-100 rounded animate-pulse" />
           </td>
+          <td className="px-6 py-4">
+            <div className="w-16 h-5 bg-gray-100 rounded animate-pulse" />
+          </td>
           <td className="px-6 py-4" />
         </tr>
       ))}
@@ -390,27 +433,32 @@ const Candidates = () => {
     <div className="min-h-screen bg-gray-50 px-4 md:px-8 py-8">
       <div className="max-w-7xl mx-auto flex flex-col gap-6">
         {/* ── Header ── */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-gray-100 pb-6">
+          {/* ───── Left: Title Section ───── */}
           <div>
             <p className="text-[#c8a84b] text-[10px] font-black uppercase tracking-widest mb-1">
               Admin Panel
             </p>
+
             <h1
               className="text-[#1a3a6e] font-black uppercase text-2xl md:text-3xl"
               style={{ fontFamily: "'Georgia', serif" }}
             >
               Candidates
             </h1>
+
             <p className="text-gray-400 text-sm mt-1">
               Manage election candidates and positions.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Search */}
-            <div className="flex items-center">
+          {/* ───── Right: Actions Section ───── */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            {/* Search + Filter + Refresh Group */}
+            <div className="flex items-center gap-2">
+              {/* Search */}
               {searchOpen ? (
-                <div className="flex items-center border-2 border-[#1a3a6e] bg-white">
+                <div className="flex items-center border border-gray-300 bg-white rounded-md shadow-sm">
                   <span className="pl-3 text-gray-400">
                     <SearchOutlinedIcon style={{ fontSize: 18 }} />
                   </span>
@@ -419,80 +467,85 @@ const Candidates = () => {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Search name or position…"
-                    className="w-44 outline-none px-3 py-2 text-sm text-gray-700 placeholder-gray-300 bg-transparent"
+                    className="w-52 outline-none px-3 py-2 text-sm text-gray-700 placeholder-gray-300 bg-transparent"
                   />
                   <button
                     onClick={() => {
                       setSearchOpen(false);
                       setSearch("");
                     }}
-                    className="pr-3 text-gray-400 hover:text-[#1a3a6e] transition-colors"
+                    className="pr-3 text-gray-400 hover:text-[#1a3a6e]"
                   >
-                    <CloseOutlinedIcon style={{ fontSize: 15 }} />
+                    <CloseOutlinedIcon style={{ fontSize: 16 }} />
                   </button>
                 </div>
               ) : (
                 <button
                   onClick={() => setSearchOpen(true)}
-                  className="p-2.5 border-2 border-gray-200 hover:border-[#1a3a6e] text-gray-400 hover:text-[#1a3a6e] transition-all"
+                  className="p-2.5 border border-gray-300 rounded-md text-gray-500 hover:border-[#1a3a6e] hover:text-[#1a3a6e] transition"
                 >
                   <SearchOutlinedIcon style={{ fontSize: 20 }} />
                 </button>
               )}
-            </div>
 
-            {/* Position filter */}
-            <div className="flex items-center border-2 border-gray-200 hover:border-[#1a3a6e] bg-white transition-all">
-              <span className="pl-3 text-gray-400">
-                <FilterListOutlinedIcon style={{ fontSize: 18 }} />
-              </span>
-              <select
-                value={filterPos}
-                onChange={(e) => setFilterPos(e.target.value)}
-                className="outline-none px-3 py-2 text-sm text-gray-600 bg-transparent cursor-pointer pr-4"
+              {/* Position Filter */}
+              <div className="flex items-center border border-gray-300 rounded-md bg-white hover:border-[#1a3a6e] transition">
+                <span className="pl-3 text-gray-400">
+                  <FilterListOutlinedIcon style={{ fontSize: 18 }} />
+                </span>
+                <select
+                  value={filterPos}
+                  onChange={(e) => setFilterPos(e.target.value)}
+                  className="outline-none px-3 py-2 text-sm text-gray-600 bg-transparent cursor-pointer pr-6"
+                >
+                  <option value="">All Positions</option>
+                  {positions.map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Refresh */}
+              <button
+                onClick={() => fetchCandidates()}
+                title="Refresh"
+                className="p-2.5 border border-gray-300 rounded-md text-gray-500 hover:border-[#1a3a6e] hover:text-[#1a3a6e] transition"
               >
-                <option value="">All Positions</option>
-                {positions.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
+                <RefreshOutlinedIcon style={{ fontSize: 20 }} />
+              </button>
             </div>
 
-            <button
-              onClick={() => fetchCandidates()}
-              title="Refresh"
-              className="p-2.5 border-2 border-gray-200 hover:border-[#1a3a6e] text-gray-400 hover:text-[#1a3a6e] transition-all"
-            >
-              <RefreshOutlinedIcon style={{ fontSize: 20 }} />
-            </button>
+            {/* Divider */}
+            <div className="hidden sm:block w-px h-8 bg-gray-200" />
 
-            {/* ── Export button ── */}
+            {/* Secondary Actions */}
             <button
               onClick={() => exportCandidates(candidates)}
               disabled={candidates.length === 0}
-              title="Export to Excel"
-              className="flex items-center gap-1.5 border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all duration-300 disabled:opacity-40"
+              className="flex items-center gap-2 border border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition disabled:opacity-40"
             >
-              <FileDownloadOutlinedIcon style={{ fontSize: 17 }} />
+              <FileDownloadOutlinedIcon style={{ fontSize: 16 }} />
               Export
             </button>
 
+            {/* Primary Action */}
             <button
               onClick={openAdd}
-              className="flex items-center gap-1.5 bg-[#1a3a6e] hover:bg-[#c8a84b] text-white px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-sm"
+              className="flex items-center gap-2 bg-[#1a3a6e] hover:bg-[#c8a84b] text-white px-5 py-2.5 text-xs font-black uppercase tracking-widest rounded-md shadow-md transition"
             >
               <PersonAddOutlinedIcon style={{ fontSize: 17 }} />
               Add Candidate
             </button>
 
+            {/* Danger Action */}
             <button
               onClick={() => setDeleteAllOpen(true)}
               disabled={candidates.length === 0}
-              className="flex items-center gap-1.5 border-2 border-red-200 text-red-400 hover:border-red-500 hover:bg-red-50 px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all disabled:opacity-40"
+              className="flex items-center gap-2 border border-red-400 text-red-600 hover:bg-red-50 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition disabled:opacity-40"
             >
-              <DeleteSweepOutlinedIcon style={{ fontSize: 17 }} />
+              <DeleteSweepOutlinedIcon style={{ fontSize: 16 }} />
               Delete All
             </button>
           </div>
@@ -546,6 +599,9 @@ const Candidates = () => {
                   <th className="text-left px-6 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                     Votes
                   </th>
+                  <th className="text-left px-6 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                    % in Position
+                  </th>
                   <th className="text-right px-6 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                     Actions
                   </th>
@@ -557,7 +613,7 @@ const Candidates = () => {
                 ) : filtered.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={4}
+                      colSpan={5}
                       className="text-center py-16 text-gray-300 text-sm"
                     >
                       {search || filterPos
@@ -591,6 +647,19 @@ const Candidates = () => {
                         <span className="font-black text-[#1a3a6e] text-sm">
                           {c.voteCount ?? 0}
                         </span>
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-gray-600 text-sm">
+                            {c.percentage.toFixed(1)}%
+                          </span>
+                          <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-[#1a3a6e] rounded-full transition-all"
+                              style={{ width: `${c.percentage}%` }}
+                            />
+                          </div>
+                        </div>
                       </td>
                       <td className="px-6 py-3.5 text-right">
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

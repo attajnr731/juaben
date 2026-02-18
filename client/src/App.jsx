@@ -15,6 +15,7 @@ import Voters from "./pages/Voters";
 import Candidates from "./pages/Candidates";
 import Results from "./pages/Results";
 import Profile from "./pages/Profile";
+import LiveVoting from "./pages/LiveVoting";
 import RootLayout from "./layout/RootLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import VotingProtectedRoute from "./components/VotingProtectedRoute";
@@ -41,6 +42,7 @@ const App = () => {
             <Route path="settings" element={<Settings />} />
             <Route path="voters" element={<Voters />} />
             <Route path="candidates" element={<Candidates />} />
+            <Route path="live-voting" element={<LiveVoting />} />
             <Route path="profile" element={<Profile />} />
             <Route path="results" element={<Results />} />
           </Route>

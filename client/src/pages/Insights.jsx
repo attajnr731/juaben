@@ -9,6 +9,8 @@ import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutli
 import PendingOutlinedIcon from "@mui/icons-material/PendingOutlined";
 import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
+import LiveTvIcon from "@mui/icons-material/LiveTv";
+import { Link } from "react-router-dom";
 
 const API = "https://juaben.onrender.com/api";
 
@@ -234,33 +236,62 @@ const Insights = () => {
     <div className="min-h-screen bg-gray-50 px-4 md:px-8 py-8">
       <div className="max-w-7xl mx-auto flex flex-col gap-6">
         {/* ── Header ── */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-gray-100 pb-6">
+          {/* ───── Left: Title Section ───── */}
           <div>
             <p className="text-[#c8a84b] text-[10px] font-black uppercase tracking-widest mb-1">
               Admin Panel
             </p>
+
             <h1
               className="text-[#1a3a6e] font-black uppercase text-2xl md:text-3xl"
               style={{ fontFamily: "'Georgia', serif" }}
             >
               Insights & Analytics
             </h1>
+
             <p className="text-gray-400 text-sm mt-1">
               Real-time election metrics and performance overview.
             </p>
           </div>
 
-          <button
-            onClick={refresh}
-            disabled={refreshing}
-            className="flex items-center gap-2 bg-[#1a3a6e] hover:bg-[#c8a84b] disabled:opacity-60 text-white px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-sm self-end"
-          >
-            <RefreshOutlinedIcon
-              style={{ fontSize: 17 }}
-              className={refreshing ? "animate-spin" : ""}
-            />
-            Refresh
-          </button>
+          {/* ───── Right: Actions ───── */}
+          <div className="flex items-center gap-3">
+            {/* Secondary Action — Refresh */}
+            <button
+              onClick={refresh}
+              disabled={refreshing}
+              className="flex items-center gap-2 
+        border border-gray-300 
+        text-gray-600 
+        hover:border-[#1a3a6e] hover:text-[#1a3a6e] 
+        px-4 py-2 
+        text-xs font-bold uppercase tracking-wider 
+        rounded-md 
+        transition disabled:opacity-50"
+            >
+              <RefreshOutlinedIcon
+                style={{ fontSize: 16 }}
+                className={refreshing ? "animate-spin" : ""}
+              />
+              Refresh
+            </button>
+
+            {/* Primary Action — Live Voting */}
+            <Link
+              to="/admin/live-voting"
+              className="flex items-center gap-2 
+        bg-[#1a3a6e] hover:bg-[#c8a84b] 
+        text-white 
+        px-5 py-2.5 
+        text-xs font-black uppercase tracking-widest 
+        rounded-md shadow-md 
+        transition"
+            >
+              <LiveTvIcon style={{ fontSize: 17 }} />
+              Live Voting
+            </Link>
+          </div>
         </div>
 
         {/* ── Election Status Banner ── */}

@@ -1,4 +1,5 @@
 import Voter from "../models/Voter.js";
+import Candidate from "../models/Candidate.js";
 
 // ─────────────────────────────────────
 // GET /api/voters
@@ -142,6 +143,31 @@ export const deleteAllVoters = async (req, res) => {
     });
   } catch (err) {
     console.error("deleteAllVoters error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const resetAllVoters = async (req, res) => {
+  try {
+    // Reset all voters
+    const voterResult = await Voter.updateMany(
+      {},
+      { $set: { hasVoted: false } },
+    );
+
+    // Reset all candidate vote counts
+    const candidateResult = await Candidate.updateMany(
+      {},
+      { $set: { voteCount: 0 } },
+    );
+
+    return res.status(200).json({
+      message: "Election data reset successfully.",
+      votersReset: voterResult.modifiedCount,
+      candidatesReset: candidateResult.modifiedCount,
+    });
+  } catch (err) {
+    console.error("resetAllVoters error:", err);
     return res.status(500).json({ message: "Server error" });
   }
 };
