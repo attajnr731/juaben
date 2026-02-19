@@ -15,7 +15,7 @@ import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import * as XLSX from "xlsx";
 
-const API = "http://localhost:3000/api";
+const API = "https://juaben.onrender.com/api";
 
 const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -257,6 +257,7 @@ const Candidates = () => {
     try {
       const res = await fetch(`${API}/settings`, { headers: authHeaders() });
       const data = await res.json();
+      console.log(data);
       if (res.ok) setPositions(data.positions || []);
     } catch {
       /* silent */

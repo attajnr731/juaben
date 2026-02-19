@@ -12,7 +12,6 @@ import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettin
 
 const API_BASE = "https://juaben.onrender.com/api";
 
-// ── Defined OUTSIDE any other component so it's never recreated on re-render ──
 const PasswordInput = ({
   value,
   show,
