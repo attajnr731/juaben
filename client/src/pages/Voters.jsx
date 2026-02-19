@@ -709,10 +709,22 @@ const Voters = () => {
             </div>
             <div className="px-6 py-6 flex flex-col gap-5">
               <div className="bg-blue-50 border border-blue-100 px-4 py-3 text-xs text-blue-600 leading-relaxed">
-                Upload a <strong>.xlsx</strong> or <strong>.csv</strong> with
-                columns <code className="bg-blue-100 px-1 rounded">id</code> and{" "}
-                <code className="bg-blue-100 px-1 rounded">Name</code>.
-                Duplicates are skipped automatically.
+                <span>
+                  Upload a <strong>.xlsx</strong> or <strong>.csv</strong> with
+                  columns <code className="bg-blue-100 px-1 rounded">ID</code>{" "}
+                  and <code className="bg-blue-100 px-1 rounded">Name</code>.
+                  Duplicates are skipped automatically.
+                </span>
+
+                <p>
+                  <a
+                    href="/temp.xlsx"
+                    download="voter_template.xlsx"
+                    className="inline-flex items-center gap-1.5 self-start font-bold underline underline-offset-2 hover:text-blue-800 transition-colors"
+                  >
+                    ⬇ Download Template
+                  </a>
+                </p>
               </div>
 
               <div
