@@ -256,6 +256,10 @@ const Results = () => {
   const selectedWinner = selectedCandidates[0];
   const hasVotes = selectedTotalVotes > 0;
 
+  // Add this after selectedWinner
+  const skippedVotes = Math.max(0, votedCount - selectedTotalVotes);
+  const totalForPosition = selectedTotalVotes + skippedVotes; // === votedCount
+
   const chartData = selectedCandidates.map((c) => ({
     name: c.name.split(" ")[0],
     votes: c.voteCount || 0,
@@ -432,54 +436,72 @@ const Results = () => {
           ) : (
             <>
               {/* Winner card & Chart */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                 {/* Winner card */}
-                <div className="bg-white border-2 border-[#c8a84b] shadow-xl p-8 flex flex-col items-center text-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-[#FFD700] flex items-center justify-center shadow-lg">
-                    <EmojiEventsOutlinedIcon
-                      style={{ fontSize: 32 }}
-                      className="text-white"
-                    />
-                  </div>
-                  <div>
-                    <p className="text-[#c8a84b] text-xs tracking-widest uppercase font-bold mb-2">
-                      Winner
-                    </p>
-                    <Avatar
-                      src={selectedWinner?.profilePicture}
-                      name={selectedWinner?.name}
-                      size="60"
-                    />
-                    <p className="text-[#1a3a6e] font-black text-2xl mt-4 mb-1">
-                      {selectedWinner?.name}
-                    </p>
-                    <p className="text-gray-400 text-xs mb-4">
-                      {selectedPosition}
-                    </p>
-                    <div className="flex items-center justify-center gap-2 bg-[#1a3a6e] text-white px-6 py-2">
-                      <HowToVoteOutlinedIcon style={{ fontSize: 18 }} />
-                      <span className="font-black text-lg">
-                        {selectedWinner?.voteCount || 0}
-                      </span>
-                      <span className="text-xs uppercase tracking-widest">
-                        Votes
-                      </span>
-                    </div>
-                    {selectedTotalVotes > 0 && (
-                      <p className="text-gray-400 text-xs mt-3">
-                        {Math.round(
-                          ((selectedWinner?.voteCount || 0) /
-                            selectedTotalVotes) *
-                            100,
-                        )}
-                        % of total votes
-                      </p>
+                <div className="bg-white border-2 border-[#c8a84b] shadow-xl overflow-hidden">
+                  <div className="relative w-full h-full min-h-[500px]">
+                    {selectedWinner?.profilePicture ? (
+                      <img
+                        src={selectedWinner.profilePicture}
+                        alt={selectedWinner.name}
+                        className="absolute inset-0 w-full h-full object-cover object-top"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="absolute inset-0 w-full h-full bg-[#1a3a6e] flex items-center justify-center">
+                        <span className="text-white font-black text-6xl">
+                          {selectedWinner?.name
+                            ?.split(" ")
+                            .map((w) => w[0])
+                            .slice(0, 2)
+                            .join("")
+                            .toUpperCase()}
+                        </span>
+                      </div>
                     )}
+
+                    {/* Winner ribbon — top left */}
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-[#c8a84b] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 shadow-md z-10">
+                      <EmojiEventsOutlinedIcon style={{ fontSize: 14 }} />
+                      Winner
+                    </div>
+
+                    {/* Gradient overlay at bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-6 pt-16 pb-6 flex flex-col items-center gap-2 z-10">
+                      <p className="text-white font-black text-2xl drop-shadow">
+                        {selectedWinner?.name}
+                      </p>
+                      <p className="text-[#c8a84b] text-xs uppercase tracking-widest">
+                        {selectedPosition} ELECT
+                      </p>
+                      <div className="flex items-center gap-2 bg-[#c8a84b] text-white px-5 py-1.5 mt-1">
+                        <HowToVoteOutlinedIcon style={{ fontSize: 16 }} />
+                        <span className="font-black text-base">
+                          {selectedWinner?.voteCount || 0}
+                        </span>
+                        <span className="text-xs uppercase tracking-widest">
+                          Votes
+                        </span>
+                        {selectedTotalVotes > 0 && (
+                          <span className="text-xs opacity-80 ml-1">
+                            ·{" "}
+                            {Math.round(
+                              ((selectedWinner?.voteCount || 0) /
+                                selectedTotalVotes) *
+                                100,
+                            )}
+                            %
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 {/* Chart */}
-                <div className="bg-white border border-gray-100 shadow-sm p-6 flex flex-col">
+                <div className="bg-white border border-gray-100 shadow-sm p-6 flex flex-col min-h-[500px]">
                   <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
                     <WorkOutlineOutlinedIcon
                       style={{ fontSize: 18 }}
@@ -489,7 +511,7 @@ const Results = () => {
                       Vote Distribution
                     </p>
                   </div>
-                  <div className="flex-1 min-h-[300px]">
+                  <div className="flex-1">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={chartData}
@@ -518,7 +540,6 @@ const Results = () => {
                   </div>
                 </div>
               </div>
-
               {/* Full candidate list */}
               <div className="bg-white border border-gray-100 shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">

@@ -402,7 +402,7 @@ const Vote = () => {
                               : "border-gray-200 bg-white hover:border-[#c8a84b]"
                           }`}
                         >
-                          <div className="absolute top-4 right-4">
+                          <div className="absolute top-4 right-4 hidden">
                             {isSelected ? (
                               <CheckCircleOutlineOutlinedIcon
                                 style={{ fontSize: 28 }}
@@ -415,14 +415,43 @@ const Vote = () => {
                               />
                             )}
                           </div>
-                          <div className="flex flex-col items-center text-center gap-4">
-                            <Avatar src={c.profilePicture} name={c.name} />
-                            <div>
+                          <div className="flex flex-col">
+                            {/* Square candidate photo */}
+                            <div className="relative w-full aspect-square overflow-hidden mb-4">
+                              {c.profilePicture ? (
+                                <img
+                                  src={c.profilePicture}
+                                  alt={c.name}
+                                  className="w-full h-full object-cover object-top"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = "none";
+                                    e.currentTarget.nextSibling.style.display =
+                                      "flex";
+                                  }}
+                                />
+                              ) : null}
+                              <div
+                                className="w-full h-full bg-[#1a3a6e] items-center justify-center text-white font-black text-4xl"
+                                style={{
+                                  display: c.profilePicture ? "none" : "flex",
+                                }}
+                              >
+                                {c.name
+                                  ?.split(" ")
+                                  .map((w) => w[0])
+                                  .slice(0, 2)
+                                  .join("")
+                                  .toUpperCase()}
+                              </div>
+                            </div>
+
+                            {/* Name + bio below */}
+                            <div className="text-center px-1 pb-2">
                               <p className="text-[#1a3a6e] font-black text-lg mb-1">
                                 {c.name}
                               </p>
                               {c.bio && (
-                                <p className="text-gray-400 text-xs leading-relaxed line-clamp-3">
+                                <p className="text-gray-400 text-xs leading-relaxed line-clamp-2">
                                   {c.bio}
                                 </p>
                               )}
