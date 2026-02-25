@@ -256,10 +256,6 @@ const Results = () => {
   const selectedWinner = selectedCandidates[0];
   const hasVotes = selectedTotalVotes > 0;
 
-  // Add this after selectedWinner
-  const skippedVotes = Math.max(0, votedCount - selectedTotalVotes);
-  const totalForPosition = selectedTotalVotes + skippedVotes; // === votedCount
-
   const chartData = selectedCandidates.map((c) => ({
     name: c.name.split(" ")[0],
     votes: c.voteCount || 0,
