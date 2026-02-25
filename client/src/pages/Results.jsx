@@ -448,7 +448,7 @@ const Results = () => {
                     <Avatar
                       src={selectedWinner?.profilePicture}
                       name={selectedWinner?.name}
-                      size="lg"
+                      size="60"
                     />
                     <p className="text-[#1a3a6e] font-black text-2xl mt-4 mb-1">
                       {selectedWinner?.name}
