@@ -254,13 +254,29 @@ const Results = () => {
     0,
   );
   const selectedWinner = selectedCandidates[0];
+  // Add this after selectedWinner
+  const skippedVotes = Math.max(0, votedCount - selectedTotalVotes);
+  const totalForPosition = selectedTotalVotes + skippedVotes; // === votedCount
   const hasVotes = selectedTotalVotes > 0;
 
-  const chartData = selectedCandidates.map((c) => ({
-    name: c.name.split(" ")[0],
-    votes: c.voteCount || 0,
-    fullName: c.name,
-  }));
+  const chartData = [
+    ...selectedCandidates.map((c) => ({
+      name: c.name.split(" ")[0],
+      votes: c.voteCount || 0,
+      fullName: c.name,
+      isSkipped: false,
+    })),
+    ...(skippedVotes > 0
+      ? [
+          {
+            name: "Skipped",
+            votes: skippedVotes,
+            fullName: "Skipped / No Vote",
+            isSkipped: true,
+          },
+        ]
+      : []),
+  ];
 
   if (loading) {
     return (
@@ -475,7 +491,12 @@ const Results = () => {
                       <div className="flex items-center gap-2 bg-[#c8a84b] text-white px-5 py-1.5 mt-1">
                         <HowToVoteOutlinedIcon style={{ fontSize: 16 }} />
                         <span className="font-black text-base">
-                          {selectedWinner?.voteCount || 0}
+                          {Math.round(
+                            ((selectedWinner?.voteCount || 0) /
+                              totalForPosition) *
+                              100,
+                          )}
+                          %{" "}
                         </span>
                         <span className="text-xs uppercase tracking-widest">
                           Votes
@@ -524,10 +545,16 @@ const Results = () => {
                         <YAxis tick={{ fontSize: 11, fill: "#6b7280" }} />
                         <Tooltip content={<CustomTooltip />} />
                         <Bar dataKey="votes" radius={[4, 4, 0, 0]}>
-                          {chartData.map((_, index) => (
+                          {chartData.map((entry, index) => (
                             <Cell
                               key={`cell-${index}`}
-                              fill={index === 0 ? "#c8a84b" : "#1a3a6e"}
+                              fill={
+                                entry.isSkipped
+                                  ? "#d1d5db"
+                                  : index === 0
+                                    ? "#c8a84b"
+                                    : "#1a3a6e"
+                              }
                             />
                           ))}
                         </Bar>
@@ -546,9 +573,9 @@ const Results = () => {
                 <div className="divide-y divide-gray-50">
                   {selectedCandidates.map((c, i) => {
                     const percentage =
-                      selectedTotalVotes > 0
+                      totalForPosition > 0
                         ? Math.round(
-                            ((c.voteCount || 0) / selectedTotalVotes) * 100,
+                            ((c.voteCount || 0) / totalForPosition) * 100,
                           )
                         : 0;
                     return (
@@ -605,6 +632,52 @@ const Results = () => {
                       </div>
                     );
                   })}
+
+                  {skippedVotes > 0 && (
+                    <div className="flex items-center justify-between px-6 py-4 bg-gray-50/60">
+                      <div className="flex items-center gap-4 flex-1 min-w-0">
+                        <span className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-gray-100 text-gray-400 font-black text-sm">
+                          —
+                        </span>
+                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
+                          <span className="text-gray-400 text-xs font-black">
+                            ?
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-gray-500 font-bold text-sm">
+                            Skipped / No Vote
+                          </p>
+                          <p className="text-gray-300 text-xs">
+                            Voters who did not select a candidate
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-6 shrink-0">
+                        <div className="text-right">
+                          <p className="text-gray-400 font-black text-xl">
+                            {skippedVotes}
+                          </p>
+                          <p className="text-gray-300 text-xs">
+                            {totalForPosition > 0
+                              ? Math.round(
+                                  (skippedVotes / totalForPosition) * 100,
+                                )
+                              : 0}
+                            %
+                          </p>
+                        </div>
+                        <div className="w-20 h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gray-300 rounded-full transition-all"
+                            style={{
+                              width: `${totalForPosition > 0 ? Math.round((skippedVotes / totalForPosition) * 100) : 0}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </>
