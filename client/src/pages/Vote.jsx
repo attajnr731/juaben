@@ -398,7 +398,7 @@ const Vote = () => {
                           onClick={() => handleSelect(posIndex, c._id)}
                           className={`group relative p-6 border-2 transition-all duration-300 hover:shadow-xl ${
                             isSelected
-                              ? "border-[#1a3a6e] bg-[#1a3a6e]/5 shadow-lg"
+                              ? "border-[#1cb507] bg-[#1a3a6e]/5 shadow-lg"
                               : "border-gray-200 bg-white hover:border-[#c8a84b]"
                           }`}
                         >

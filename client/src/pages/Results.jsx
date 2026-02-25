@@ -45,66 +45,45 @@ const exportResults = ({ positions, candidates, voters }) => {
     { Metric: "Total Votes Cast", Value: totalVotes },
   ];
 
-  summaryRows.push({ Metric: "", Value: "" });
-  summaryRows.push({ Metric: "— WINNERS —", Value: "" });
-  positions.forEach((pos) => {
-    const cands = candidates
-      .filter((c) => c.position === pos)
-      .sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0));
-    const winner = cands[0];
-    summaryRows.push({
-      Metric: pos,
-      Value: winner
-        ? `${winner.name} (${winner.voteCount || 0} votes)`
-        : "No votes",
-    });
-  });
-
   const wsSummary = XLSX.utils.json_to_sheet(summaryRows);
-  wsSummary["!cols"] = [{ wch: 30 }, { wch: 36 }];
+  wsSummary["!cols"] = [{ wch: 30 }, { wch: 44 }];
   XLSX.utils.book_append_sheet(wb, wsSummary, "Summary");
 
   // ── Sheet 2: Results by Position ──
   const resultRows = [];
+  let rowNum = 1;
+
   positions.forEach((pos) => {
     const cands = candidates
       .filter((c) => c.position === pos)
       .sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0));
 
-    const posTotal = cands.reduce((s, c) => s + (c.voteCount || 0), 0);
-
     cands.forEach((c, i) => {
-      const pct =
-        posTotal > 0
-          ? (((c.voteCount || 0) / posTotal) * 100).toFixed(1)
+      const pctOfVoters =
+        votedCount > 0
+          ? (((c.voteCount || 0) / votedCount) * 100).toFixed(1)
           : "0.0";
+
       resultRows.push({
+        "#": rowNum++,
+        Name: c.name,
         Position: pos,
         Rank: i + 1,
-        Candidate: c.name,
         Votes: c.voteCount || 0,
-        "% of Position": `${pct}%`,
-        Winner: i === 0 ? "✓" : "",
+        "% of Votes": `${pctOfVoters}%`,
       });
-    });
-
-    resultRows.push({
-      Position: "",
-      Rank: "",
-      Candidate: "",
-      Votes: "",
-      "% of Position": "",
-      Winner: "",
     });
   });
 
   const wsResults = XLSX.utils.json_to_sheet(resultRows);
   wsResults["!cols"] = [
+    { wch: 5 },
+    { wch: 28 },
     { wch: 24 },
     { wch: 6 },
-    { wch: 28 },
     { wch: 8 },
-    { wch: 16 },
+    { wch: 14 },
+    { wch: 14 },
     { wch: 8 },
   ];
   XLSX.utils.book_append_sheet(wb, wsResults, "Results by Position");
@@ -254,6 +233,15 @@ const Results = () => {
     0,
   );
   const selectedWinner = selectedCandidates[0];
+  // After: const selectedWinner = selectedCandidates[0];
+  const topVoteCount = selectedWinner?.voteCount || 0;
+  const isTie =
+    selectedCandidates.filter(
+      (c) => c.voteCount === topVoteCount && topVoteCount > 0,
+    ).length > 1;
+  const tiedCandidates = isTie
+    ? selectedCandidates.filter((c) => c.voteCount === topVoteCount)
+    : [];
   // Add this after selectedWinner
   const skippedVotes = Math.max(0, votedCount - selectedTotalVotes);
   const totalForPosition = selectedTotalVotes + skippedVotes; // === votedCount
@@ -338,7 +326,7 @@ const Results = () => {
                 />
                 <span className="text-sm text-gray-600">
                   <span className="font-black text-[#1a3a6e] text-base">
-                    {totalVotes}
+                    {votedCount}
                   </span>{" "}
                   votes
                 </span>
@@ -450,70 +438,153 @@ const Results = () => {
               {/* Winner card & Chart */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                 {/* Winner card */}
+                {/* Winner / Tie card */}
                 <div className="bg-white border-2 border-[#c8a84b] shadow-xl overflow-hidden">
                   <div className="relative w-full h-full min-h-[500px]">
-                    {selectedWinner?.profilePicture ? (
-                      <img
-                        src={selectedWinner.profilePicture}
-                        alt={selectedWinner.name}
-                        className="absolute inset-0 w-full h-full object-cover object-top"
-                        onError={(e) => {
-                          e.target.style.display = "none";
-                        }}
-                      />
-                    ) : (
-                      <div className="absolute inset-0 w-full h-full bg-[#1a3a6e] flex items-center justify-center">
-                        <span className="text-white font-black text-6xl">
-                          {selectedWinner?.name
-                            ?.split(" ")
-                            .map((w) => w[0])
-                            .slice(0, 2)
-                            .join("")
-                            .toUpperCase()}
-                        </span>
-                      </div>
-                    )}
+                    {isTie ? (
+                      /* ── TIE: split photo layout ── */
+                      <>
+                        <div className="absolute inset-0 flex">
+                          {tiedCandidates.map((c, i) => (
+                            <div
+                              key={c._id}
+                              className="relative flex-1 overflow-hidden"
+                            >
+                              {c.profilePicture ? (
+                                <img
+                                  src={c.profilePicture}
+                                  alt={c.name}
+                                  className="absolute inset-0 w-full h-full object-cover object-top"
+                                  onError={(e) => {
+                                    e.target.style.display = "none";
+                                  }}
+                                />
+                              ) : (
+                                <div className="absolute inset-0 bg-[#1a3a6e] flex items-center justify-center">
+                                  <span className="text-white font-black text-5xl">
+                                    {c.name
+                                      ?.split(" ")
+                                      .map((w) => w[0])
+                                      .slice(0, 2)
+                                      .join("")
+                                      .toUpperCase()}
+                                  </span>
+                                </div>
+                              )}
+                              {/* Divider line between photos */}
+                              {i < tiedCandidates.length - 1 && (
+                                <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-[#c8a84b] z-10" />
+                              )}
+                            </div>
+                          ))}
+                        </div>
 
-                    {/* Winner ribbon — top left */}
-                    <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-[#c8a84b] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 shadow-md z-10">
-                      <EmojiEventsOutlinedIcon style={{ fontSize: 14 }} />
-                      Winner
-                    </div>
+                        {/* Tie ribbon */}
+                        <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 shadow-md z-10">
+                          <span>⚖️</span> Tie
+                        </div>
 
-                    {/* Gradient overlay at bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-6 pt-16 pb-6 flex flex-col items-center gap-2 z-10">
-                      <p className="text-white font-black text-2xl drop-shadow">
-                        {selectedWinner?.name}
-                      </p>
-                      <p className="text-[#c8a84b] text-xs uppercase tracking-widest">
-                        {selectedPosition} ELECT
-                      </p>
-                      <div className="flex items-center gap-2 bg-[#c8a84b] text-white px-5 py-1.5 mt-1">
-                        <HowToVoteOutlinedIcon style={{ fontSize: 16 }} />
-                        <span className="font-black text-base">
-                          {Math.round(
-                            ((selectedWinner?.voteCount || 0) /
-                              totalForPosition) *
-                              100,
-                          )}
-                          %{" "}
-                        </span>
-                        <span className="text-xs uppercase tracking-widest">
-                          Votes
-                        </span>
-                        {selectedTotalVotes > 0 && (
-                          <span className="text-xs opacity-80 ml-1">
-                            ·{" "}
-                            {Math.round(
-                              ((selectedWinner?.voteCount || 0) /
-                                selectedTotalVotes) *
-                                100,
+                        {/* Bottom gradient with both names */}
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent px-6 pt-16 pb-6 flex flex-col items-center gap-2 z-10">
+                          <div className="flex items-center gap-2 flex-wrap justify-center">
+                            {tiedCandidates.map((c, i) => (
+                              <span
+                                key={c._id}
+                                className="text-white font-black text-xl drop-shadow"
+                              >
+                                {c.name}
+                                {i < tiedCandidates.length - 1 ? (
+                                  <span className="text-[#c8a84b] mx-2">
+                                    vs
+                                  </span>
+                                ) : (
+                                  ""
+                                )}
+                              </span>
+                            ))}
+                          </div>
+                          <p className="text-[#c8a84b] text-xs uppercase tracking-widest">
+                            {selectedPosition}
+                          </p>
+                          <div className="flex items-center gap-2 bg-red-500 text-white px-5 py-1.5 mt-1">
+                            <HowToVoteOutlinedIcon style={{ fontSize: 16 }} />
+                            <span className="font-black text-base">
+                              {topVoteCount}
+                            </span>
+                            <span className="text-xs uppercase tracking-widest">
+                              Votes Each
+                            </span>
+                            {totalForPosition > 0 && (
+                              <span className="text-xs opacity-80 ml-1">
+                                ·{" "}
+                                {Math.round(
+                                  (topVoteCount / totalForPosition) * 100,
+                                )}
+                                % each
+                              </span>
                             )}
-                            %
-                          </span>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      /* ── WINNER: single photo layout ── */
+                      <>
+                        {selectedWinner?.profilePicture ? (
+                          <img
+                            src={selectedWinner.profilePicture}
+                            alt={selectedWinner.name}
+                            className="absolute inset-0 w-full h-full object-cover object-top"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                            }}
+                          />
+                        ) : (
+                          <div className="absolute inset-0 bg-[#1a3a6e] flex items-center justify-center">
+                            <span className="text-white font-black text-6xl">
+                              {selectedWinner?.name
+                                ?.split(" ")
+                                .map((w) => w[0])
+                                .slice(0, 2)
+                                .join("")
+                                .toUpperCase()}
+                            </span>
+                          </div>
                         )}
-                      </div>
-                    </div>
+
+                        {/* Winner ribbon */}
+                        <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-[#c8a84b] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 shadow-md z-10">
+                          <EmojiEventsOutlinedIcon style={{ fontSize: 14 }} />
+                          Winner
+                        </div>
+
+                        {/* Gradient overlay */}
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-6 pt-16 pb-6 flex flex-col items-center gap-2 z-10">
+                          <p className="text-white font-black text-2xl drop-shadow">
+                            {selectedWinner?.name}
+                          </p>
+                          <p className="text-[#c8a84b] text-xs uppercase tracking-widest">
+                            {selectedPosition}
+                          </p>
+                          <div className="flex items-center gap-2 bg-[#c8a84b] text-white px-5 py-1.5 mt-1">
+                            <HowToVoteOutlinedIcon style={{ fontSize: 16 }} />
+                            <span className="font-black text-base">
+                              {Math.round(
+                                ((selectedWinner?.voteCount || 0) /
+                                  totalForPosition) *
+                                  100,
+                              )}
+                              %
+                            </span>
+                            <span className="text-xs uppercase tracking-widest">
+                              Votes
+                            </span>
+                            <span className="text-xs opacity-80 ml-1">
+                              · {selectedWinner?.voteCount || 0}
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 

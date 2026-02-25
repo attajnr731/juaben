@@ -379,7 +379,7 @@ const Insights = () => {
           <StatCard
             icon={<EmojiEventsOutlinedIcon style={{ fontSize: 26 }} />}
             label="Total Votes"
-            value={totalVotes.toLocaleString()}
+            value={votedCount}
             subtext={
               totalVotes > 0
                 ? `Avg ${Math.round(totalVotes / totalCandidates)} per candidate`
