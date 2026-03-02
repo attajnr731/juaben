@@ -53,24 +53,32 @@ const exportResults = ({ positions, candidates, voters }) => {
   const resultRows = [];
   let rowNum = 1;
 
-  positions.forEach((pos) => {
+positions.forEach((pos) => {
     const cands = candidates
       .filter((c) => c.position === pos)
       .sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0));
 
+    const posTotal = cands.reduce((s, c) => s + (c.voteCount || 0), 0);
+    const isInflated = posTotal > votedCount;
+
     cands.forEach((c, i) => {
-      const pctOfVoters =
-        votedCount > 0
-          ? (((c.voteCount || 0) / votedCount) * 100).toFixed(1)
-          : "0.0";
+      // If inflated, scale votes proportionally down to votedCount
+      const adjustedVotes = isInflated && posTotal > 0
+        ? Math.round(((c.voteCount || 0) / posTotal) * votedCount)
+        : (c.voteCount || 0);
+
+      const totalForPosition = isInflated ? votedCount : posTotal;
+      const pct = totalForPosition > 0
+        ? ((adjustedVotes / totalForPosition) * 100).toFixed(1)
+        : "0.0";
 
       resultRows.push({
         "#": rowNum++,
         Name: c.name,
         Position: pos,
         Rank: i + 1,
-        Votes: c.voteCount || 0,
-        "% of Votes": `${pctOfVoters}%`,
+        Votes: adjustedVotes,
+        "% of Votes": `${pct}%`,
       });
     });
   });
@@ -83,8 +91,6 @@ const exportResults = ({ positions, candidates, voters }) => {
     { wch: 6 },
     { wch: 8 },
     { wch: 14 },
-    { wch: 14 },
-    { wch: 8 },
   ];
   XLSX.utils.book_append_sheet(wb, wsResults, "Results by Position");
 
