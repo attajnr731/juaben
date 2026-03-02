@@ -247,10 +247,16 @@ const Results = () => {
   const skippedVotes = Math.max(0, totalForPosition - selectedTotalVotes);
   const hasVotes = selectedTotalVotes > 0;
 
+  const scaleFactor =
+    selectedTotalVotes > votedCount ? votedCount / selectedTotalVotes : 1;
+
+  const getScaledVotes = (voteCount) =>
+    Math.round((voteCount || 0) * scaleFactor);
+
   const chartData = [
     ...selectedCandidates.map((c) => ({
       name: c.name.split(" ")[0],
-      votes: c.voteCount || 0,
+      votes: getScaledVotes(c.voteCount),
       fullName: c.name,
       isSkipped: false,
     })),
@@ -425,8 +431,7 @@ const Results = () => {
               {Math.min(selectedTotalVotes, votedCount)} vote
               {Math.min(selectedTotalVotes, votedCount) !== 1 ? "s" : ""} cast
               {selectedTotalVotes > votedCount && (
-                <span className="ml-2 text-amber-400 text-xs">
-                </span>
+                <span className="ml-2 text-amber-400 text-xs"></span>
               )}
             </p>
           </div>
@@ -513,7 +518,23 @@ const Results = () => {
                           <div className="flex items-center gap-2 bg-red-500 text-white px-5 py-1.5 mt-1">
                             <HowToVoteOutlinedIcon style={{ fontSize: 16 }} />
                             <span className="font-black text-base">
-                              {topVoteCount}
+                              {Math.round(
+                                (getScaledVotes(selectedWinner?.voteCount) /
+                                  totalForPosition) *
+                                  100,
+                              )}
+                              %
+                            </span>
+                            <span className="text-xs uppercase tracking-widest">
+                              Votes
+                            </span>
+                            <span className="text-xs opacity-80 ml-1">
+                              · {getScaledVotes(selectedWinner?.voteCount)}
+                            </span>
+                            // Tie card — replace topVoteCount references in the
+                            badge:
+                            <span className="font-black text-base">
+                              {getScaledVotes(topVoteCount)}
                             </span>
                             <span className="text-xs uppercase tracking-widest">
                               Votes Each
@@ -522,7 +543,9 @@ const Results = () => {
                               <span className="text-xs opacity-80 ml-1">
                                 ·{" "}
                                 {Math.round(
-                                  (topVoteCount / totalForPosition) * 100,
+                                  (getScaledVotes(topVoteCount) /
+                                    totalForPosition) *
+                                    100,
                                 )}
                                 % each
                               </span>
@@ -647,11 +670,10 @@ const Results = () => {
                 </div>
                 <div className="divide-y divide-gray-50">
                   {selectedCandidates.map((c, i) => {
+                    const scaledVotes = getScaledVotes(c.voteCount);
                     const percentage =
                       totalForPosition > 0
-                        ? Math.round(
-                            ((c.voteCount || 0) / totalForPosition) * 100,
-                          )
+                        ? Math.round((scaledVotes / totalForPosition) * 100)
                         : 0;
                     return (
                       <div
@@ -691,8 +713,9 @@ const Results = () => {
                         <div className="flex items-center gap-6 shrink-0">
                           <div className="text-right">
                             <p className="text-[#1a3a6e] font-black text-xl">
-                              {c.voteCount || 0}
+                              {scaledVotes}
                             </p>
+
                             <p className="text-gray-400 text-xs">
                               {percentage}%
                             </p>
