@@ -243,8 +243,8 @@ const Results = () => {
     ? selectedCandidates.filter((c) => c.voteCount === topVoteCount)
     : [];
   // Add this after selectedWinner
-  const skippedVotes = Math.max(0, votedCount - selectedTotalVotes);
-  const totalForPosition = selectedTotalVotes + skippedVotes; // === votedCount
+  const totalForPosition = Math.max(selectedTotalVotes, votedCount);
+  const skippedVotes = Math.max(0, totalForPosition - selectedTotalVotes);
   const hasVotes = selectedTotalVotes > 0;
 
   const chartData = [
@@ -422,8 +422,12 @@ const Results = () => {
               {selectedPosition}
             </h2>
             <p className="text-gray-400 text-sm">
-              {selectedTotalVotes} vote{selectedTotalVotes !== 1 ? "s" : ""}{" "}
-              cast
+              {Math.min(selectedTotalVotes, votedCount)} vote
+              {Math.min(selectedTotalVotes, votedCount) !== 1 ? "s" : ""} cast
+              {selectedTotalVotes > votedCount && (
+                <span className="ml-2 text-amber-400 text-xs">
+                </span>
+              )}
             </p>
           </div>
 
