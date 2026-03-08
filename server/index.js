@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 // ✅ CORS setup
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://kete-nm.onrender.com/"], // your frontend origins
+    origin: ["http://localhost:5173", "https://kete-nm.onrender.com"], // your frontend origins
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-OTP", "X-Email"],
     credentials: true,
