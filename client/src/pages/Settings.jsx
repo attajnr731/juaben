@@ -11,8 +11,6 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
-import KeyOutlinedIcon from "@mui/icons-material/KeyOutlined";
-import FileCopyOutlinedIcon from "@mui/icons-material/FileCopyOutlined";
 
 const API = "https://juaben.onrender.com/api";
 
@@ -74,12 +72,6 @@ const StatusPill = ({ status, message }) => {
 
 const Settings = () => {
   const [pageLoading, setPageLoading] = useState(true);
-  const [otpList, setOtpList] = useState([]);
-  const [otpLoading, setOtpLoading] = useState(false);
-  const [lastOtp, setLastOtp] = useState(""); // freshly generated code
-  const [otpCopied, setOtpCopied] = useState(false);
-  const [otpStatus, setOtpStatus] = useState({ status: "", message: "" });
-  const [clearLoading, setClearLoading] = useState(false);
 
   // ── Election Period ──
   const [startDate, setStartDate] = useState("");
@@ -704,144 +696,6 @@ const Settings = () => {
               {passLoading ? "Saving…" : "Update Passcode"}
             </button>
           </div>
-        </SectionCard>
-
-        {/* ── 4. OTP MANAGEMENT ── */}
-        <SectionCard
-          icon={<KeyOutlinedIcon style={{ fontSize: 20 }} />}
-          title="Voter OTPs"
-          subtitle="Generate a one-time password for each voter before they vote"
-        >
-          {/* Generate button */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-            <button
-              onClick={generateOtp}
-              disabled={otpLoading}
-              className="flex items-center gap-2 px-6 py-3 text-xs font-black uppercase tracking-widest bg-[#0a6b1b] hover:bg-[#c8a84b] disabled:opacity-60 text-white transition-all duration-300 shadow-sm"
-            >
-              {otpLoading ? (
-                <svg
-                  className="w-4 h-4 animate-spin"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8z"
-                  />
-                </svg>
-              ) : (
-                <AddOutlinedIcon style={{ fontSize: 16 }} />
-              )}
-              Generate OTP
-            </button>
-
-            <div className="flex items-center gap-3 text-xs text-gray-400">
-              <span>
-                <span className="font-black text-[#0a6b1b]">
-                  {otpList.filter((o) => !o.used).length}
-                </span>{" "}
-                unused
-              </span>
-              <span>·</span>
-              <span>
-                <span className="font-black text-gray-400">
-                  {otpList.filter((o) => o.used).length}
-                </span>{" "}
-                used
-              </span>
-            </div>
-          </div>
-
-          {/* Last generated OTP — big display */}
-          {lastOtp && (
-            <div className="mb-6 border-2 border-[#c8a84b] bg-amber-50 px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-1">
-                  New OTP — share with voter now
-                </p>
-                <p className="text-[#0a6b1b] font-black text-4xl tracking-[0.4em]">
-                  {lastOtp}
-                </p>
-              </div>
-              <button
-                onClick={() => copyOtp(lastOtp)}
-                className="flex items-center gap-2 border-2 border-[#0a6b1b] text-[#0a6b1b] hover:bg-[#0a6b1b] hover:text-white px-5 py-2.5 text-xs font-black uppercase tracking-widest transition-all"
-              >
-                {otpCopied ? (
-                  <CheckOutlinedIcon style={{ fontSize: 15 }} />
-                ) : (
-                  <FileCopyOutlinedIcon style={{ fontSize: 15 }} />
-                )}
-                {otpCopied ? "Copied!" : "Copy"}
-              </button>
-            </div>
-          )}
-
-          {otpStatus.message && (
-            <div className="mb-4">
-              <StatusPill {...otpStatus} />
-            </div>
-          )}
-
-          {/* OTP list */}
-          {otpList.length > 0 && (
-            <>
-              <div className="border border-gray-100 divide-y divide-gray-50 max-h-64 overflow-y-auto">
-                {[...otpList].reverse().map((o) => (
-                  <div
-                    key={o._id}
-                    className={`flex items-center justify-between px-4 py-2.5 text-sm ${
-                      o.used ? "bg-gray-50 opacity-50" : "bg-white"
-                    }`}
-                  >
-                    <span
-                      className={`font-mono font-black tracking-[0.25em] text-base ${o.used ? "text-gray-400 line-through" : "text-[#0a6b1b]"}`}
-                    >
-                      {o.code}
-                    </span>
-                    <span
-                      className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 ${
-                        o.used
-                          ? "bg-gray-100 text-gray-400"
-                          : "bg-green-100 text-green-700"
-                      }`}
-                    >
-                      {o.used ? "Used" : "Unused"}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-3 flex justify-end">
-                <button
-                  onClick={clearUsedOtps}
-                  disabled={
-                    clearLoading || otpList.filter((o) => o.used).length === 0
-                  }
-                  className="text-xs text-gray-400 hover:text-red-500 disabled:opacity-40 font-bold uppercase tracking-widest transition-colors flex items-center gap-1.5"
-                >
-                  <DeleteOutlineOutlinedIcon style={{ fontSize: 14 }} />
-                  Clear Used OTPs
-                </button>
-              </div>
-            </>
-          )}
-
-          {otpList.length === 0 && (
-            <p className="text-gray-300 text-sm text-center py-6">
-              No OTPs generated yet.
-            </p>
-          )}
         </SectionCard>
 
         {/* ── 4. DANGER ZONE ── */}
