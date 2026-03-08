@@ -6,7 +6,7 @@ import ArrowDownwardOutlinedIcon from "@mui/icons-material/ArrowDownwardOutlined
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
 
-const API = "http://localhost:3000/api";
+const API = "https://juaben.onrender.com/api";
 
 // ── Check if current time is within the election period ──
 const isWithinElectionPeriod = (period) => {

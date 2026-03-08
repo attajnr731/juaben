@@ -12,7 +12,7 @@ import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 
-const API = "http://localhost:3000/api";
+const API = "https://juaben.onrender.com/api";
 
 const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("adminToken")}`,

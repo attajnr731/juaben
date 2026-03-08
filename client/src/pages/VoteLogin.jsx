@@ -5,7 +5,7 @@ import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
-const API = "http://localhost:3000/api";
+const API = "https://juaben.onrender.com/api";
 
 // ── Spinner ──
 const Spinner = ({ className = "w-4 h-4" }) => (

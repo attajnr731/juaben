@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = "https://juaben.onrender.com/api";
 
 const VotingProtectedRoute = () => {
   const navigate = useNavigate();
