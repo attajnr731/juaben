@@ -14,7 +14,7 @@ import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import * as XLSX from "xlsx";
 
-const API = "https://juaben.onrender.com/api";
+const API = "http://localhost:3000/api";
 
 const authHeaders = () => ({
   "Content-Type": "application/json",
@@ -54,7 +54,7 @@ const Stat = ({ icon, label, value, accent }) => (
       <p className="text-gray-400 text-[10px] uppercase tracking-widest font-bold">
         {label}
       </p>
-      <p className="text-[#1a3a6e] text-xl font-black">{value}</p>
+      <p className="text-[#0a6b1b] text-xl font-black">{value}</p>
     </div>
   </div>
 );
@@ -346,7 +346,7 @@ const Voters = () => {
             </p>
 
             <h1
-              className="text-[#1a3a6e] font-black uppercase text-2xl md:text-3xl"
+              className="text-[#0a6b1b] font-black uppercase text-2xl md:text-3xl"
               style={{ fontFamily: "'Georgia', serif" }}
             >
               Voters
@@ -378,7 +378,7 @@ const Voters = () => {
                       setSearchOpen(false);
                       setSearch("");
                     }}
-                    className="pr-3 text-gray-400 hover:text-[#1a3a6e]"
+                    className="pr-3 text-gray-400 hover:text-[#0a6b1b]"
                   >
                     <CloseOutlinedIcon style={{ fontSize: 16 }} />
                   </button>
@@ -386,7 +386,7 @@ const Voters = () => {
               ) : (
                 <button
                   onClick={() => setSearchOpen(true)}
-                  className="p-2.5 border border-gray-300 rounded-md text-gray-500 hover:border-[#1a3a6e] hover:text-[#1a3a6e] transition"
+                  className="p-2.5 border border-gray-300 rounded-md text-gray-500 hover:border-[#0a6b1b] hover:text-[#0a6b1b] transition"
                 >
                   <SearchOutlinedIcon style={{ fontSize: 20 }} />
                 </button>
@@ -395,7 +395,7 @@ const Voters = () => {
               <button
                 onClick={() => fetchVoters(search)}
                 title="Refresh"
-                className="p-2.5 border border-gray-300 rounded-md text-gray-500 hover:border-[#1a3a6e] hover:text-[#1a3a6e] transition"
+                className="p-2.5 border border-gray-300 rounded-md text-gray-500 hover:border-[#0a6b1b] hover:text-[#0a6b1b] transition"
               >
                 <RefreshOutlinedIcon style={{ fontSize: 20 }} />
               </button>
@@ -417,7 +417,7 @@ const Voters = () => {
 
               <button
                 onClick={() => setBulkOpen(true)}
-                className="flex items-center gap-2 border border-[#1a3a6e] text-[#1a3a6e] hover:bg-[#1a3a6e] hover:text-white px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition"
+                className="flex items-center gap-2 border border-[#0a6b1b] text-[#0a6b1b] hover:bg-[#0a6b1b] hover:text-white px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition"
               >
                 <UploadFileOutlinedIcon style={{ fontSize: 16 }} />
                 Bulk Upload
@@ -427,7 +427,7 @@ const Voters = () => {
             {/* Primary Action */}
             <button
               onClick={() => setAddOpen(true)}
-              className="flex items-center gap-2 bg-[#1a3a6e] hover:bg-[#c8a84b] text-white px-5 py-2.5 text-xs font-black uppercase tracking-widest rounded-md shadow-md transition"
+              className="flex items-center gap-2 bg-[#0a6b1b] hover:bg-[#c8a84b] text-white px-5 py-2.5 text-xs font-black uppercase tracking-widest rounded-md shadow-md transition"
             >
               <PersonAddOutlinedIcon style={{ fontSize: 17 }} />
               Add Voter
@@ -462,7 +462,7 @@ const Voters = () => {
             icon={<PeopleOutlineOutlinedIcon style={{ fontSize: 22 }} />}
             label="Total Voters"
             value={loading ? "—" : voters.length}
-            accent="#1a3a6e"
+            accent="#0a6b1b"
           />
           <Stat
             icon={<HowToVoteOutlinedIcon style={{ fontSize: 22 }} />}
@@ -481,7 +481,7 @@ const Voters = () => {
         {/* ── Table ── */}
         <div className="bg-white border border-gray-100 shadow-sm overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-            <p className="text-[#1a3a6e] font-black text-sm uppercase tracking-wide">
+            <p className="text-[#0a6b1b] font-black text-sm uppercase tracking-wide">
               Registered Voters
               {search && !loading && (
                 <span className="ml-2 text-gray-400 font-normal normal-case text-xs">
@@ -605,7 +605,7 @@ const Voters = () => {
           onClick={(e) => e.target === e.currentTarget && setAddOpen(false)}
         >
           <div className="bg-white w-full max-w-sm shadow-2xl">
-            <div className="bg-[#1a3a6e] px-6 py-5 flex items-center justify-between">
+            <div className="bg-[#0a6b1b] px-6 py-5 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <PersonAddOutlinedIcon
                   style={{ fontSize: 18 }}
@@ -624,7 +624,7 @@ const Voters = () => {
             </div>
             <div className="px-6 py-6 flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-[#1a3a6e] uppercase tracking-widest">
+                <label className="text-[10px] font-black text-[#0a6b1b] uppercase tracking-widest">
                   Student ID
                 </label>
                 <input
@@ -634,14 +634,14 @@ const Voters = () => {
                     setAddErrors((p) => ({ ...p, id: "" }));
                   }}
                   placeholder="e.g. JHS011"
-                  className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors ${addErrors.id ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[#1a3a6e]"}`}
+                  className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors ${addErrors.id ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[#0a6b1b]"}`}
                 />
                 {addErrors.id && (
                   <p className="text-red-500 text-xs">{addErrors.id}</p>
                 )}
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-[#1a3a6e] uppercase tracking-widest">
+                <label className="text-[10px] font-black text-[#0a6b1b] uppercase tracking-widest">
                   Full Name
                 </label>
                 <input
@@ -652,7 +652,7 @@ const Voters = () => {
                   }}
                   onKeyDown={(e) => e.key === "Enter" && handleAdd()}
                   placeholder="e.g. Kofi Acheampong"
-                  className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors ${addErrors.name ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[#1a3a6e]"}`}
+                  className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors ${addErrors.name ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[#0a6b1b]"}`}
                 />
                 {addErrors.name && (
                   <p className="text-red-500 text-xs">{addErrors.name}</p>
@@ -668,7 +668,7 @@ const Voters = () => {
                 <button
                   onClick={handleAdd}
                   disabled={addLoading}
-                  className="flex-1 bg-[#1a3a6e] hover:bg-[#c8a84b] disabled:opacity-60 text-white font-black text-xs uppercase tracking-widest py-3 transition-all duration-300 flex items-center justify-center gap-2"
+                  className="flex-1 bg-[#0a6b1b] hover:bg-[#c8a84b] disabled:opacity-60 text-white font-black text-xs uppercase tracking-widest py-3 transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   {addLoading ? <SpinnerSvg /> : "Add →"}
                 </button>
@@ -685,7 +685,7 @@ const Voters = () => {
           onClick={(e) => e.target === e.currentTarget && setBulkOpen(false)}
         >
           <div className="bg-white w-full max-w-lg shadow-2xl">
-            <div className="bg-[#1a3a6e] px-6 py-5 flex items-center justify-between">
+            <div className="bg-[#0a6b1b] px-6 py-5 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <UploadFileOutlinedIcon
                   style={{ fontSize: 18 }}
@@ -729,14 +729,14 @@ const Voters = () => {
 
               <div
                 onClick={() => fileRef.current?.click()}
-                className="border-2 border-dashed border-gray-200 hover:border-[#1a3a6e] transition-colors cursor-pointer flex flex-col items-center py-8 gap-2 group"
+                className="border-2 border-dashed border-gray-200 hover:border-[#0a6b1b] transition-colors cursor-pointer flex flex-col items-center py-8 gap-2 group"
               >
                 <UploadFileOutlinedIcon
                   style={{ fontSize: 36 }}
-                  className="text-gray-300 group-hover:text-[#1a3a6e] transition-colors"
+                  className="text-gray-300 group-hover:text-[#0a6b1b] transition-colors"
                 />
                 {bulkFileName ? (
-                  <p className="text-[#1a3a6e] font-bold text-sm">
+                  <p className="text-[#0a6b1b] font-bold text-sm">
                     {bulkFileName}
                   </p>
                 ) : (
@@ -835,7 +835,7 @@ const Voters = () => {
                 <button
                   onClick={handleBulkImport}
                   disabled={!bulkPreview.length || bulkLoading}
-                  className="flex-1 bg-[#1a3a6e] hover:bg-[#c8a84b] disabled:opacity-40 text-white font-black text-xs uppercase tracking-widest py-3 transition-all duration-300 flex items-center justify-center gap-2"
+                  className="flex-1 bg-[#0a6b1b] hover:bg-[#c8a84b] disabled:opacity-40 text-white font-black text-xs uppercase tracking-widest py-3 transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   {bulkLoading ? (
                     <SpinnerSvg />
@@ -869,7 +869,7 @@ const Voters = () => {
               <p className="text-gray-500 text-sm mb-1">
                 Are you sure you want to remove:
               </p>
-              <p className="text-[#1a3a6e] font-black text-base">
+              <p className="text-[#0a6b1b] font-black text-base">
                 {deleteTarget.name}
               </p>
               <p className="text-gray-400 text-xs font-mono mb-6">

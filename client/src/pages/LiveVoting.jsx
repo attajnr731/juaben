@@ -12,7 +12,7 @@ import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 
-const API = "https://juaben.onrender.com/api";
+const API = "http://localhost:3000/api";
 
 const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -41,7 +41,7 @@ const StatCard = ({ icon, label, value, subtext, accent, percentage }) => (
       <p className="text-gray-400 text-xs uppercase tracking-widest font-bold mb-2">
         {label}
       </p>
-      <p className="text-[#1a3a6e] text-4xl font-black mb-1">{value}</p>
+      <p className="text-[#0a6b1b] text-4xl font-black mb-1">{value}</p>
       {subtext && <p className="text-gray-400 text-sm">{subtext}</p>}
     </div>
   </div>
@@ -88,8 +88,8 @@ const renderCustomLabel = ({
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white border-2 border-[#1a3a6e] shadow-xl px-5 py-4">
-        <p className="text-[#1a3a6e] font-black text-sm mb-2">
+      <div className="bg-white border-2 border-[#0a6b1b] shadow-xl px-5 py-4">
+        <p className="text-[#0a6b1b] font-black text-sm mb-2">
           {payload[0].name}
         </p>
         <p className="text-gray-600 text-lg font-bold">
@@ -210,7 +210,7 @@ const LiveVoting = () => {
               Live Dashboard
             </p>
             <h1
-              className="text-[#1a3a6e] font-black uppercase text-2xl md:text-3xl"
+              className="text-[#0a6b1b] font-black uppercase text-2xl md:text-3xl"
               style={{ fontFamily: "'Georgia', serif" }}
             >
               Voting Progress
@@ -224,7 +224,7 @@ const LiveVoting = () => {
           <button
             onClick={manualRefresh}
             disabled={refreshing}
-            className="flex items-center gap-2 bg-[#1a3a6e] hover:bg-[#c8a84b] disabled:opacity-60 text-white px-6 py-3 text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-lg"
+            className="flex items-center gap-2 bg-[#0a6b1b] hover:bg-[#c8a84b] disabled:opacity-60 text-white px-6 py-3 text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-lg"
           >
             <RefreshOutlinedIcon
               style={{ fontSize: 18 }}
@@ -238,7 +238,7 @@ const LiveVoting = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left: Huge Pie Chart */}
           <div className="bg-white border border-gray-100 shadow-lg p-8 flex flex-col items-center justify-center">
-            <h3 className="text-[#1a3a6e] font-black text-xl uppercase tracking-wide mb-6 text-center">
+            <h3 className="text-[#0a6b1b] font-black text-xl uppercase tracking-wide mb-6 text-center">
               Voter Turnout Distribution
             </h3>
 
@@ -288,7 +288,7 @@ const LiveVoting = () => {
           {/* Right: Progress Breakdown */}
           <div className="bg-white border border-gray-100 shadow-lg p-8 flex flex-col justify-center gap-8">
             <div>
-              <h3 className="text-[#1a3a6e] font-black text-lg uppercase tracking-wide mb-6">
+              <h3 className="text-[#0a6b1b] font-black text-lg uppercase tracking-wide mb-6">
                 Live Turnout Metrics
               </h3>
 
@@ -301,7 +301,7 @@ const LiveVoting = () => {
                       Voters Who Voted
                     </span>
                   </div>
-                  <span className="text-[#1a3a6e] font-black text-xl">
+                  <span className="text-[#0a6b1b] font-black text-xl">
                     {votedCount}
                   </span>
                 </div>
@@ -325,7 +325,7 @@ const LiveVoting = () => {
                       Pending Voters
                     </span>
                   </div>
-                  <span className="text-[#1a3a6e] font-black text-xl">
+                  <span className="text-[#0a6b1b] font-black text-xl">
                     {pendingCount}
                   </span>
                 </div>
@@ -342,7 +342,7 @@ const LiveVoting = () => {
             </div>
 
             {/* Summary box */}
-            <div className="bg-[#1a3a6e] text-white p-6 rounded-sm">
+            <div className="bg-[#0a6b1b] text-white p-6 rounded-sm">
               <p className="text-[#c8a84b] text-xs uppercase tracking-widest font-bold mb-3">
                 Current Status
               </p>

@@ -13,7 +13,7 @@ import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
 import BubbleChartOutlinedIcon from "@mui/icons-material/BubbleChartOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
-const API_BASE = "https://juaben.onrender.com/api";
+const API_BASE = "http://localhost:3000/api";
 
 const authHeaders = () => ({
   "Content-Type": "application/json",
@@ -156,7 +156,7 @@ const Navbar = ({ onMenuToggle }) => {
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={() => setMobileMenuOpen((v) => !v)}
-            className="p-2 rounded hover:bg-gray-100 text-gray-500 hover:text-[#1a3a6e] transition-colors lg:hidden"
+            className="p-2 rounded hover:bg-gray-100 text-gray-500 hover:text-[#0a6b1b] transition-colors lg:hidden"
           >
             {mobileMenuOpen ? (
               <CloseOutlinedIcon style={{ fontSize: 22 }} />
@@ -172,11 +172,11 @@ const Navbar = ({ onMenuToggle }) => {
               className="h-9 w-9 object-contain"
             />
             <div className="hidden sm:block leading-tight">
-              <p className="text-[#1a3a6e] font-black text-xs uppercase tracking-wide">
-                Juaben <span className="text-[#c8a84b]">SHS</span>
+              <p className="text-[#0a6b1b] font-black text-xs uppercase tracking-wide">
+                KETE-KRACHIE
               </p>
               <p className="text-gray-400 text-[9px] tracking-widest uppercase">
-                Election Admin
+                NURSING & MIDWIFERY
               </p>
             </div>
           </div>
@@ -193,8 +193,8 @@ const Navbar = ({ onMenuToggle }) => {
               className={({ isActive }) =>
                 `flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all duration-200 border-b-2 ${
                   isActive
-                    ? "text-[#1a3a6e] border-[#1a3a6e] bg-[#1a3a6e]/5"
-                    : "text-gray-400 border-transparent hover:text-[#1a3a6e] hover:bg-gray-50"
+                    ? "text-[#0a6b1b] border-[#0a6b1b] bg-[#0a6b1b]/5"
+                    : "text-gray-400 border-transparent hover:text-[#0a6b1b] hover:bg-gray-50"
                 }`
               }
             >
@@ -206,7 +206,7 @@ const Navbar = ({ onMenuToggle }) => {
           {/* Proceed to Vote button (triggers modal) */}
           <button
             onClick={openVoteModal}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all duration-200 border-b-2 text-gray-400 border-transparent hover:text-[#1a3a6e] hover:bg-gray-50"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all duration-200 border-b-2 text-gray-400 border-transparent hover:text-[#0a6b1b] hover:bg-gray-50"
           >
             <HowToRegOutlinedIcon style={{ fontSize: 17 }} />
             Proceed to Vote
@@ -221,7 +221,7 @@ const Navbar = ({ onMenuToggle }) => {
             onClick={() => setProfileOpen((v) => !v)}
             className="flex items-center gap-2.5 pl-3 pr-2 py-1.5 border border-transparent hover:border-gray-200 hover:bg-gray-50 rounded transition-all"
           >
-            <div className="w-8 h-8 rounded-full bg-[#1a3a6e] flex items-center justify-center text-white text-xs font-black uppercase shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[#0a6b1b] flex items-center justify-center text-white text-xs font-black uppercase shrink-0">
               JA
             </div>
             <div className="hidden md:block text-left leading-tight">
@@ -258,7 +258,7 @@ const Navbar = ({ onMenuToggle }) => {
                     <NavLink
                       to={item.to}
                       onClick={() => setProfileOpen(false)}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-500 hover:text-[#1a3a6e] hover:bg-gray-50 text-sm transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-500 hover:text-[#0a6b1b] hover:bg-gray-50 text-sm transition-colors"
                     >
                       <span className="text-gray-400">{item.icon}</span>
                       {item.label}
@@ -321,8 +321,8 @@ const Navbar = ({ onMenuToggle }) => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-6 py-3.5 text-sm font-bold uppercase tracking-widest transition-colors border-l-4 ${
                     isActive
-                      ? "text-[#1a3a6e] border-[#1a3a6e] bg-[#1a3a6e]/5"
-                      : "text-gray-400 border-transparent hover:text-[#1a3a6e] hover:bg-gray-50"
+                      ? "text-[#0a6b1b] border-[#0a6b1b] bg-[#0a6b1b]/5"
+                      : "text-gray-400 border-transparent hover:text-[#0a6b1b] hover:bg-gray-50"
                   }`
                 }
               >
@@ -337,7 +337,7 @@ const Navbar = ({ onMenuToggle }) => {
                 setMobileMenuOpen(false);
                 openVoteModal();
               }}
-              className="flex items-center gap-3 px-6 py-3.5 text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-[#1a3a6e] hover:bg-gray-50 transition-colors border-l-4 border-transparent"
+              className="flex items-center gap-3 px-6 py-3.5 text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-[#0a6b1b] hover:bg-gray-50 transition-colors border-l-4 border-transparent"
             >
               <HowToRegOutlinedIcon style={{ fontSize: 17 }} />
               Proceed to Vote
@@ -368,7 +368,7 @@ const Navbar = ({ onMenuToggle }) => {
             className={`bg-white w-full max-w-sm shadow-2xl ${shaking ? "shake" : ""}`}
           >
             {/* Header */}
-            <div className="bg-[#1a3a6e] px-6 py-5 flex items-center justify-between">
+            <div className="bg-[#0a6b1b] px-6 py-5 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <LockOutlinedIcon
                   style={{ fontSize: 18 }}
@@ -395,7 +395,7 @@ const Navbar = ({ onMenuToggle }) => {
 
               <form onSubmit={handleVoteSubmit} className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[#1a3a6e] text-[10px] font-black uppercase tracking-widest">
+                  <label className="text-[#0a6b1b] text-[10px] font-black uppercase tracking-widest">
                     Passcode
                   </label>
                   <input
@@ -411,7 +411,7 @@ const Navbar = ({ onMenuToggle }) => {
                     className={`w-full border-2 outline-none px-4 py-3 text-sm text-gray-700 transition-colors ${
                       passError
                         ? "border-red-400 bg-red-50"
-                        : "border-gray-200 focus:border-[#1a3a6e]"
+                        : "border-gray-200 focus:border-[#0a6b1b]"
                     }`}
                   />
                   {passError && (
@@ -434,7 +434,7 @@ const Navbar = ({ onMenuToggle }) => {
                   <button
                     type="submit"
                     disabled={verifying}
-                    className="flex-1 bg-[#1a3a6e] hover:bg-[#c8a84b] disabled:opacity-60 text-white font-bold text-xs uppercase tracking-widest py-3 transition-all duration-300 flex items-center justify-center gap-2"
+                    className="flex-1 bg-[#0a6b1b] hover:bg-[#c8a84b] disabled:opacity-60 text-white font-bold text-xs uppercase tracking-widest py-3 transition-all duration-300 flex items-center justify-center gap-2"
                   >
                     {verifying ? (
                       <>

@@ -5,7 +5,7 @@ import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
-const API = "https://juaben.onrender.com/api";
+const API = "http://localhost:3000/api";
 
 // ── Spinner ──
 const Spinner = ({ className = "w-4 h-4" }) => (
@@ -160,12 +160,12 @@ const VoteLogin = () => {
           <div className="flex items-center gap-3">
             <img
               src="/logo.png"
-              alt="Juaben SHS"
+              alt="KETE SHS"
               className="h-10 w-10 object-contain"
             />
             <div>
-              <p className="text-[#1a3a6e] font-black text-sm uppercase tracking-wide leading-tight">
-                Juaben <span className="text-[#c8a84b]">SHS</span>
+              <p className="text-[#0a6b1b] font-black text-sm uppercase tracking-wide leading-tight">
+                KETE-KRACHIE <span className="text-[#c8a84b]">NURSING</span>
               </p>
               <p className="text-gray-400 text-[10px] tracking-widest uppercase">
                 Student Voting Portal
@@ -183,7 +183,7 @@ const VoteLogin = () => {
           ════════════════════════════════ */}
           {periodLoading ? (
             <div className="bg-white border border-gray-100 shadow-xl px-8 py-16 flex flex-col items-center gap-4">
-              <Spinner className="w-6 h-6 text-[#1a3a6e]" />
+              <Spinner className="w-6 h-6 text-[#0a6b1b]" />
               <p className="text-gray-400 text-sm">Checking election status…</p>
             </div>
           ) : !votingOpen ? (
@@ -263,9 +263,9 @@ const VoteLogin = () => {
                     <div className="flex items-center gap-2 mb-1">
                       <AccessTimeOutlinedIcon
                         style={{ fontSize: 16 }}
-                        className="text-[#1a3a6e]"
+                        className="text-[#0a6b1b]"
                       />
-                      <p className="text-[#1a3a6e] font-black text-xs uppercase tracking-widest">
+                      <p className="text-[#0a6b1b] font-black text-xs uppercase tracking-widest">
                         Voting Window
                       </p>
                     </div>
@@ -310,7 +310,7 @@ const VoteLogin = () => {
               className={`bg-white border border-gray-100 shadow-xl ${shaking ? "shake" : ""}`}
             >
               {/* Header */}
-              <div className="bg-[#1a3a6e] px-6 py-6 text-center">
+              <div className="bg-[#0a6b1b] px-6 py-6 text-center">
                 <div className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-3">
                   <HowToVoteOutlinedIcon
                     style={{ fontSize: 28 }}
@@ -332,7 +332,7 @@ const VoteLogin = () => {
               <div className="px-6 py-8">
                 <form onSubmit={handleVerify} className="flex flex-col gap-5">
                   <div className="flex flex-col gap-2">
-                    <label className="text-[#1a3a6e] text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
+                    <label className="text-[#0a6b1b] text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
                       <PersonOutlineOutlinedIcon style={{ fontSize: 14 }} />
                       Student / Voter ID
                     </label>
@@ -349,7 +349,7 @@ const VoteLogin = () => {
                       className={`border-2 outline-none px-4 py-3.5 text-sm text-gray-700 placeholder-gray-300 font-mono transition-colors ${
                         error
                           ? "border-red-400 bg-red-50"
-                          : "border-gray-200 focus:border-[#1a3a6e]"
+                          : "border-gray-200 focus:border-[#0a6b1b]"
                       }`}
                     />
                     {error && (
@@ -363,7 +363,7 @@ const VoteLogin = () => {
                   <button
                     type="submit"
                     disabled={loading || !voterId.trim()}
-                    className="w-full bg-[#1a3a6e] hover:bg-[#c8a84b] disabled:opacity-50 text-white font-black text-xs uppercase tracking-widest py-4 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                    className="w-full bg-[#0a6b1b] hover:bg-[#c8a84b] disabled:opacity-50 text-white font-black text-xs uppercase tracking-widest py-4 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
                   >
                     {loading ? (
                       <>
@@ -384,8 +384,8 @@ const VoteLogin = () => {
             <div className="mt-6 text-center">
               <p className="text-gray-400 text-xs leading-relaxed">
                 Your vote is{" "}
-                <span className="font-bold text-[#1a3a6e]">anonymous</span> and{" "}
-                <span className="font-bold text-[#1a3a6e]">secure</span>. Only
+                <span className="font-bold text-[#0a6b1b]">anonymous</span> and{" "}
+                <span className="font-bold text-[#0a6b1b]">secure</span>. Only
                 one vote per student is allowed.
               </p>
             </div>

@@ -17,7 +17,7 @@ import PeopleOutlineOutlinedIcon from "@mui/icons-material/PeopleOutlineOutlined
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import * as XLSX from "xlsx";
 
-const API = "https://juaben.onrender.com/api";
+const API = "http://localhost:3000/api";
 
 const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -53,32 +53,24 @@ const exportResults = ({ positions, candidates, voters }) => {
   const resultRows = [];
   let rowNum = 1;
 
-positions.forEach((pos) => {
+  positions.forEach((pos) => {
     const cands = candidates
       .filter((c) => c.position === pos)
       .sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0));
 
-    const posTotal = cands.reduce((s, c) => s + (c.voteCount || 0), 0);
-    const isInflated = posTotal > votedCount;
-
     cands.forEach((c, i) => {
-      // If inflated, scale votes proportionally down to votedCount
-      const adjustedVotes = isInflated && posTotal > 0
-        ? Math.round(((c.voteCount || 0) / posTotal) * votedCount)
-        : (c.voteCount || 0);
-
-      const totalForPosition = isInflated ? votedCount : posTotal;
-      const pct = totalForPosition > 0
-        ? ((adjustedVotes / totalForPosition) * 100).toFixed(1)
-        : "0.0";
+      const pctOfVoters =
+        votedCount > 0
+          ? (((c.voteCount || 0) / votedCount) * 100).toFixed(1)
+          : "0.0";
 
       resultRows.push({
         "#": rowNum++,
         Name: c.name,
         Position: pos,
         Rank: i + 1,
-        Votes: adjustedVotes,
-        "% of Votes": `${pct}%`,
+        Votes: c.voteCount || 0,
+        "% of Votes": `${pctOfVoters}%`,
       });
     });
   });
@@ -91,6 +83,8 @@ positions.forEach((pos) => {
     { wch: 6 },
     { wch: 8 },
     { wch: 14 },
+    { wch: 14 },
+    { wch: 8 },
   ];
   XLSX.utils.book_append_sheet(wb, wsResults, "Results by Position");
 
@@ -128,7 +122,7 @@ const Avatar = ({ src, name, size = "md" }) => {
   if (!src || err) {
     return (
       <div
-        className={`${sizeClass} rounded-full bg-[#1a3a6e] text-white font-black flex items-center justify-center shrink-0`}
+        className={`${sizeClass} rounded-full bg-[#0a6b1b] text-white font-black flex items-center justify-center shrink-0`}
       >
         {initials}
       </div>
@@ -163,8 +157,8 @@ const Spinner = () => (
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white border-2 border-[#1a3a6e] shadow-xl px-4 py-3">
-        <p className="text-[#1a3a6e] font-black text-sm">
+      <div className="bg-white border-2 border-[#0a6b1b] shadow-xl px-4 py-3">
+        <p className="text-[#0a6b1b] font-black text-sm">
           {payload[0].payload.name}
         </p>
         <p className="text-gray-600 text-xs mt-1">
@@ -253,16 +247,10 @@ const Results = () => {
   const skippedVotes = Math.max(0, totalForPosition - selectedTotalVotes);
   const hasVotes = selectedTotalVotes > 0;
 
-  const scaleFactor =
-    selectedTotalVotes > votedCount ? votedCount / selectedTotalVotes : 1;
-
-  const getScaledVotes = (voteCount) =>
-    Math.round((voteCount || 0) * scaleFactor);
-
   const chartData = [
     ...selectedCandidates.map((c) => ({
       name: c.name.split(" ")[0],
-      votes: getScaledVotes(c.voteCount),
+      votes: c.voteCount || 0,
       fullName: c.name,
       isSkipped: false,
     })),
@@ -293,7 +281,7 @@ const Results = () => {
     return (
       <div className="min-h-screen bg-gray-50 px-4 md:px-8 py-8">
         <div className="max-w-5xl mx-auto text-center py-16">
-          <p className="text-[#1a3a6e] font-black text-xl mb-2">
+          <p className="text-[#0a6b1b] font-black text-xl mb-2">
             No Results Available
           </p>
           <p className="text-gray-400 text-sm">
@@ -316,7 +304,7 @@ const Results = () => {
             </p>
 
             <h1
-              className="text-[#1a3a6e] font-black uppercase text-2xl md:text-3xl"
+              className="text-[#0a6b1b] font-black uppercase text-2xl md:text-3xl"
               style={{ fontFamily: "'Georgia', serif" }}
             >
               Election Results
@@ -337,7 +325,7 @@ const Results = () => {
                   className="text-gray-400"
                 />
                 <span className="text-sm text-gray-600">
-                  <span className="font-black text-[#1a3a6e] text-base">
+                  <span className="font-black text-[#0a6b1b] text-base">
                     {votedCount}
                   </span>{" "}
                   votes
@@ -352,7 +340,7 @@ const Results = () => {
                   className="text-gray-400"
                 />
                 <span className="text-sm text-gray-600">
-                  <span className="font-black text-[#1a3a6e] text-base">
+                  <span className="font-black text-[#0a6b1b] text-base">
                     {turnout}%
                   </span>{" "}
                   turnout
@@ -386,7 +374,7 @@ const Results = () => {
               title="Refresh"
               className="flex items-center gap-2 
         border border-gray-300 text-gray-600 
-        hover:border-[#1a3a6e] hover:text-[#1a3a6e] 
+        hover:border-[#0a6b1b] hover:text-[#0a6b1b] 
         px-4 py-2 
         text-xs font-bold uppercase tracking-wider 
         rounded-md transition disabled:opacity-50"
@@ -402,17 +390,17 @@ const Results = () => {
 
         {/* ── Position Selector ── */}
         <div className="bg-white border border-gray-100 shadow-sm p-6">
-          <label className="text-[#1a3a6e] text-xs font-black uppercase tracking-widest mb-3 block">
+          <label className="text-[#0a6b1b] text-xs font-black uppercase tracking-widest mb-3 block">
             Select Position to View Results
           </label>
-          <div className="flex items-center border-2 border-[#1a3a6e] bg-white max-w-md">
-            <span className="pl-4 text-[#1a3a6e]">
+          <div className="flex items-center border-2 border-[#0a6b1b] bg-white max-w-md">
+            <span className="pl-4 text-[#0a6b1b]">
               <WorkOutlineOutlinedIcon style={{ fontSize: 20 }} />
             </span>
             <select
               value={selectedPosition}
               onChange={(e) => setSelectedPosition(e.target.value)}
-              className="flex-1 outline-none px-4 py-3 text-sm text-[#1a3a6e] font-bold bg-transparent cursor-pointer"
+              className="flex-1 outline-none px-4 py-3 text-sm text-[#0a6b1b] font-bold bg-transparent cursor-pointer"
             >
               {positions.map((p) => (
                 <option key={p} value={p}>
@@ -428,7 +416,7 @@ const Results = () => {
           {/* Position header */}
           <div className="text-center">
             <h2
-              className="text-[#1a3a6e] text-3xl md:text-4xl font-black uppercase mb-2"
+              className="text-[#0a6b1b] text-3xl md:text-4xl font-black uppercase mb-2"
               style={{ fontFamily: "'Georgia', serif" }}
             >
               {selectedPosition}
@@ -475,7 +463,7 @@ const Results = () => {
                                   }}
                                 />
                               ) : (
-                                <div className="absolute inset-0 bg-[#1a3a6e] flex items-center justify-center">
+                                <div className="absolute inset-0 bg-[#0a6b1b] flex items-center justify-center">
                                   <span className="text-white font-black text-5xl">
                                     {c.name
                                       ?.split(" ")
@@ -524,23 +512,7 @@ const Results = () => {
                           <div className="flex items-center gap-2 bg-red-500 text-white px-5 py-1.5 mt-1">
                             <HowToVoteOutlinedIcon style={{ fontSize: 16 }} />
                             <span className="font-black text-base">
-                              {Math.round(
-                                (getScaledVotes(selectedWinner?.voteCount) /
-                                  totalForPosition) *
-                                  100,
-                              )}
-                              %
-                            </span>
-                            <span className="text-xs uppercase tracking-widest">
-                              Votes
-                            </span>
-                            <span className="text-xs opacity-80 ml-1">
-                              · {getScaledVotes(selectedWinner?.voteCount)}
-                            </span>
-                            // Tie card — replace topVoteCount references in the
-                            badge:
-                            <span className="font-black text-base">
-                              {getScaledVotes(topVoteCount)}
+                              {topVoteCount}
                             </span>
                             <span className="text-xs uppercase tracking-widest">
                               Votes Each
@@ -549,9 +521,7 @@ const Results = () => {
                               <span className="text-xs opacity-80 ml-1">
                                 ·{" "}
                                 {Math.round(
-                                  (getScaledVotes(topVoteCount) /
-                                    totalForPosition) *
-                                    100,
+                                  (topVoteCount / totalForPosition) * 100,
                                 )}
                                 % each
                               </span>
@@ -572,7 +542,7 @@ const Results = () => {
                             }}
                           />
                         ) : (
-                          <div className="absolute inset-0 bg-[#1a3a6e] flex items-center justify-center">
+                          <div className="absolute inset-0 bg-[#0a6b1b] flex items-center justify-center">
                             <span className="text-white font-black text-6xl">
                               {selectedWinner?.name
                                 ?.split(" ")
@@ -626,9 +596,9 @@ const Results = () => {
                   <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
                     <WorkOutlineOutlinedIcon
                       style={{ fontSize: 18 }}
-                      className="text-[#1a3a6e]"
+                      className="text-[#0a6b1b]"
                     />
-                    <p className="text-[#1a3a6e] font-black text-sm uppercase tracking-wide">
+                    <p className="text-[#0a6b1b] font-black text-sm uppercase tracking-wide">
                       Vote Distribution
                     </p>
                   </div>
@@ -657,7 +627,7 @@ const Results = () => {
                                   ? "#d1d5db"
                                   : index === 0
                                     ? "#c8a84b"
-                                    : "#1a3a6e"
+                                    : "#0a6b1b"
                               }
                             />
                           ))}
@@ -670,16 +640,17 @@ const Results = () => {
               {/* Full candidate list */}
               <div className="bg-white border border-gray-100 shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
-                  <p className="text-[#1a3a6e] font-black text-sm uppercase tracking-wide">
+                  <p className="text-[#0a6b1b] font-black text-sm uppercase tracking-wide">
                     All Candidates - {selectedPosition}
                   </p>
                 </div>
                 <div className="divide-y divide-gray-50">
                   {selectedCandidates.map((c, i) => {
-                    const scaledVotes = getScaledVotes(c.voteCount);
                     const percentage =
                       totalForPosition > 0
-                        ? Math.round((scaledVotes / totalForPosition) * 100)
+                        ? Math.round(
+                            ((c.voteCount || 0) / totalForPosition) * 100,
+                          )
                         : 0;
                     return (
                       <div
@@ -718,17 +689,16 @@ const Results = () => {
                         </div>
                         <div className="flex items-center gap-6 shrink-0">
                           <div className="text-right">
-                            <p className="text-[#1a3a6e] font-black text-xl">
-                              {scaledVotes}
+                            <p className="text-[#0a6b1b] font-black text-xl">
+                              {c.voteCount || 0}
                             </p>
-
                             <p className="text-gray-400 text-xs">
                               {percentage}%
                             </p>
                           </div>
                           <div className="w-20 h-2 bg-gray-100 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-[#1a3a6e] rounded-full transition-all"
+                              className="h-full bg-[#0a6b1b] rounded-full transition-all"
                               style={{ width: `${percentage}%` }}
                             />
                           </div>

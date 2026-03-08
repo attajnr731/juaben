@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
-const API_BASE = "https://juaben.onrender.com/api";
+const API_BASE = "http://localhost:3000/api";
 
 const VotingProtectedRoute = () => {
   const navigate = useNavigate();
@@ -69,7 +69,7 @@ const VotingProtectedRoute = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <svg
-          className="w-8 h-8 animate-spin text-[#1a3a6e]"
+          className="w-8 h-8 animate-spin text-[#0a6b1b]"
           fill="none"
           viewBox="0 0 24 24"
         >
@@ -110,7 +110,7 @@ const VotingProtectedRoute = () => {
             className={`bg-white w-full max-w-sm shadow-2xl ${shaking ? "shake" : ""}`}
           >
             {/* Header */}
-            <div className="bg-[#1a3a6e] px-6 py-5 flex items-center justify-between">
+            <div className="bg-[#0a6b1b] px-6 py-5 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <LockOutlinedIcon
                   style={{ fontSize: 18 }}
@@ -130,7 +130,7 @@ const VotingProtectedRoute = () => {
 
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[#1a3a6e] text-[10px] font-black uppercase tracking-widest">
+                  <label className="text-[#0a6b1b] text-[10px] font-black uppercase tracking-widest">
                     Passcode
                   </label>
                   <input
@@ -146,7 +146,7 @@ const VotingProtectedRoute = () => {
                     className={`w-full border-2 outline-none px-4 py-3 text-sm text-gray-700 transition-colors ${
                       error
                         ? "border-red-400 bg-red-50"
-                        : "border-gray-200 focus:border-[#1a3a6e]"
+                        : "border-gray-200 focus:border-[#0a6b1b]"
                     }`}
                   />
                   {error && (
@@ -169,7 +169,7 @@ const VotingProtectedRoute = () => {
                   <button
                     type="submit"
                     disabled={verifying}
-                    className="flex-1 bg-[#1a3a6e] hover:bg-[#c8a84b] disabled:opacity-60 text-white font-bold text-xs uppercase tracking-widest py-3 transition-all duration-300 flex items-center justify-center gap-2"
+                    className="flex-1 bg-[#0a6b1b] hover:bg-[#c8a84b] disabled:opacity-60 text-white font-bold text-xs uppercase tracking-widest py-3 transition-all duration-300 flex items-center justify-center gap-2"
                   >
                     {verifying ? (
                       <>

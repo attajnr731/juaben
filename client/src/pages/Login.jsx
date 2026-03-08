@@ -7,7 +7,7 @@ import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
-const API_BASE = "https://juaben.onrender.com/api";
+const API_BASE = "http://localhost:3000/api";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -78,7 +78,7 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* ── LEFT PANEL ── */}
-      <div className="hidden lg:flex w-1/2 bg-[#1a3a6e] flex-col items-center justify-center px-16 relative overflow-hidden">
+      <div className="hidden lg:flex w-1/2 bg-[#0a6b1b] flex-col items-center justify-center px-16 relative overflow-hidden">
         <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-white/5" />
         <div className="absolute -bottom-24 -right-16 w-96 h-96 rounded-full bg-white/5" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-white/[0.03]" />
@@ -86,7 +86,7 @@ const Login = () => {
         <div className="relative z-10 flex flex-col items-center text-center gap-6">
           <img
             src="/logo.png"
-            alt="Juaben SHS Logo"
+            alt="Nursing SHS Logo"
             className="h-24 w-24 object-contain drop-shadow-xl"
           />
 
@@ -95,7 +95,7 @@ const Login = () => {
               className="text-white font-black uppercase text-4xl leading-tight"
               style={{ fontFamily: "'Georgia', serif" }}
             >
-              Juaben
+              KETE-KRACHIE
             </h1>
             <h1
               className="font-black uppercase text-4xl leading-tight"
@@ -106,7 +106,7 @@ const Login = () => {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              Senior High
+              NURSING & MIDWIFERY
             </h1>
           </div>
 
@@ -149,8 +149,8 @@ const Login = () => {
             className="h-10 w-10 object-contain"
           />
           <div>
-            <p className="text-[#1a3a6e] font-black text-sm uppercase tracking-wide leading-tight">
-              Juaben Senior High
+            <p className="text-[#0a6b1b] font-black text-sm uppercase tracking-wide leading-tight">
+              KETE_KRACHIE NURSING & MIDWIFERY
             </p>
             <p className="text-gray-400 text-[10px] tracking-widest uppercase">
               Student Elections
@@ -161,14 +161,14 @@ const Login = () => {
         <div className="w-full max-w-md">
           {/* heading */}
           <div className="mb-10">
-            <div className="inline-flex items-center gap-2 bg-[#1a3a6e]/10 text-[#1a3a6e] px-4 py-1.5 rounded-full mb-5">
+            <div className="inline-flex items-center gap-2 bg-[#0a6b1b]/10 text-[#0a6b1b] px-4 py-1.5 rounded-full mb-5">
               <AdminPanelSettingsOutlinedIcon style={{ fontSize: 16 }} />
               <span className="text-[10px] font-black uppercase tracking-widest">
                 Admin Access
               </span>
             </div>
             <h2
-              className="text-[#1a3a6e] font-black uppercase text-3xl leading-tight"
+              className="text-[#0a6b1b] font-black uppercase text-3xl leading-tight"
               style={{ fontFamily: "'Georgia', serif" }}
             >
               Welcome Back
@@ -198,14 +198,14 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             {/* email */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-[#1a3a6e] text-[10px] font-black uppercase tracking-widest">
+              <label className="text-[#0a6b1b] text-[10px] font-black uppercase tracking-widest">
                 Email Address
               </label>
               <div
                 className={`flex items-center border-2 transition-colors ${
                   errors.email
                     ? "border-red-400 bg-red-50"
-                    : "border-gray-200 focus-within:border-[#1a3a6e] bg-white"
+                    : "border-gray-200 focus-within:border-[#0a6b1b] bg-white"
                 }`}
               >
                 <span className="pl-4 text-gray-400">
@@ -219,7 +219,7 @@ const Login = () => {
                     setErrors((p) => ({ ...p, email: "" }));
                     setServerError("");
                   }}
-                  placeholder="admin@juabenshs.edu.gh"
+                  placeholder="admin@nursing.edu.gh"
                   className="flex-1 bg-transparent outline-none px-3 py-3.5 text-sm text-gray-700 placeholder-gray-300"
                 />
               </div>
@@ -234,7 +234,7 @@ const Login = () => {
             {/* password */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-[#1a3a6e] text-[10px] font-black uppercase tracking-widest">
+                <label className="text-[#0a6b1b] text-[10px] font-black uppercase tracking-widest">
                   Password
                 </label>
                 <button
@@ -248,7 +248,7 @@ const Login = () => {
                 className={`flex items-center border-2 transition-colors ${
                   errors.password
                     ? "border-red-400 bg-red-50"
-                    : "border-gray-200 focus-within:border-[#1a3a6e] bg-white"
+                    : "border-gray-200 focus-within:border-[#0a6b1b] bg-white"
                 }`}
               >
                 <span className="pl-4 text-gray-400">
@@ -268,7 +268,7 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="pr-4 text-gray-400 hover:text-[#1a3a6e] transition-colors"
+                  className="pr-4 text-gray-400 hover:text-[#0a6b1b] transition-colors"
                 >
                   {showPassword ? (
                     <VisibilityOffOutlinedIcon style={{ fontSize: 18 }} />
@@ -289,7 +289,7 @@ const Login = () => {
             <label className="flex items-center gap-2.5 cursor-pointer select-none">
               <input
                 type="checkbox"
-                className="w-4 h-4 accent-[#1a3a6e] cursor-pointer"
+                className="w-4 h-4 accent-[#0a6b1b] cursor-pointer"
               />
               <span className="text-gray-400 text-sm">Keep me signed in</span>
             </label>
@@ -298,7 +298,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group mt-2 flex items-center justify-center gap-2 bg-[#1a3a6e] hover:bg-[#c8a84b] disabled:opacity-60 text-white font-black text-sm uppercase tracking-widest py-4 transition-all duration-300 shadow-lg hover:shadow-xl"
+              className="group mt-2 flex items-center justify-center gap-2 bg-[#0a6b1b] hover:bg-[#c8a84b] disabled:opacity-60 text-white font-black text-sm uppercase tracking-widest py-4 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               {loading ? (
                 <svg
@@ -344,7 +344,7 @@ const Login = () => {
             Not an admin?{" "}
             <a
               href="/"
-              className="text-[#1a3a6e] font-bold hover:text-[#c8a84b] transition-colors"
+              className="text-[#0a6b1b] font-bold hover:text-[#c8a84b] transition-colors"
             >
               Return to Welcome Page
             </a>

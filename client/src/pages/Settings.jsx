@@ -12,7 +12,7 @@ import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 
-const API = "https://juaben.onrender.com/api";
+const API = "http://localhost:3000/api";
 
 // ── Auth header helper ──
 const authHeaders = () => ({
@@ -32,14 +32,14 @@ const SectionCard = ({ icon, title, subtitle, children, danger }) => (
         className="w-9 h-9 rounded-sm flex items-center justify-center"
         style={{
           background: danger ? "rgba(239,68,68,0.1)" : "rgba(26,58,110,0.08)",
-          color: danger ? "#ef4444" : "#1a3a6e",
+          color: danger ? "#ef4444" : "#0a6b1b",
         }}
       >
         {icon}
       </div>
       <div>
         <h3
-          className={`font-black text-sm uppercase tracking-wide ${danger ? "text-red-600" : "text-[#1a3a6e]"}`}
+          className={`font-black text-sm uppercase tracking-wide ${danger ? "text-red-600" : "text-[#0a6b1b]"}`}
         >
           {title}
         </h3>
@@ -296,7 +296,7 @@ const Settings = () => {
             Admin Panel
           </p>
           <h1
-            className="text-[#1a3a6e] font-black uppercase text-2xl md:text-3xl"
+            className="text-[#0a6b1b] font-black uppercase text-2xl md:text-3xl"
             style={{ fontFamily: "'Georgia', serif" }}
           >
             Settings
@@ -325,7 +325,7 @@ const Settings = () => {
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="border-2 border-gray-200 focus:border-[#1a3a6e] outline-none px-4 py-2.5 text-sm text-gray-700 transition-colors"
+                  className="border-2 border-gray-200 focus:border-[#0a6b1b] outline-none px-4 py-2.5 text-sm text-gray-700 transition-colors"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
@@ -336,7 +336,7 @@ const Settings = () => {
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="border-2 border-gray-200 focus:border-[#1a3a6e] outline-none px-4 py-2.5 text-sm text-gray-700 transition-colors"
+                  className="border-2 border-gray-200 focus:border-[#0a6b1b] outline-none px-4 py-2.5 text-sm text-gray-700 transition-colors"
                 />
               </div>
             </div>
@@ -353,7 +353,7 @@ const Settings = () => {
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="border-2 border-gray-200 focus:border-[#1a3a6e] outline-none px-4 py-2.5 text-sm text-gray-700 transition-colors"
+                  className="border-2 border-gray-200 focus:border-[#0a6b1b] outline-none px-4 py-2.5 text-sm text-gray-700 transition-colors"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
@@ -364,7 +364,7 @@ const Settings = () => {
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  className="border-2 border-gray-200 focus:border-[#1a3a6e] outline-none px-4 py-2.5 text-sm text-gray-700 transition-colors"
+                  className="border-2 border-gray-200 focus:border-[#0a6b1b] outline-none px-4 py-2.5 text-sm text-gray-700 transition-colors"
                 />
               </div>
             </div>
@@ -375,7 +375,7 @@ const Settings = () => {
             <button
               onClick={savePeriod}
               disabled={periodLoading}
-              className="flex items-center gap-2 px-6 py-2.5 text-xs font-black uppercase tracking-widest bg-[#1a3a6e] hover:bg-[#c8a84b] disabled:opacity-60 text-white transition-all duration-300 shadow-sm ml-auto"
+              className="flex items-center gap-2 px-6 py-2.5 text-xs font-black uppercase tracking-widest bg-[#0a6b1b] hover:bg-[#c8a84b] disabled:opacity-60 text-white transition-all duration-300 shadow-sm ml-auto"
             >
               {periodLoading ? (
                 <svg
@@ -418,12 +418,12 @@ const Settings = () => {
               onChange={(e) => setNewPosition(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addPosition()}
               placeholder="e.g. Finance Prefect"
-              className="flex-1 border-2 border-gray-200 focus:border-[#1a3a6e] outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors"
+              className="flex-1 border-2 border-gray-200 focus:border-[#0a6b1b] outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors"
             />
             <button
               onClick={addPosition}
               disabled={posLoading}
-              className="flex items-center gap-1.5 bg-[#1a3a6e] hover:bg-[#c8a84b] disabled:opacity-60 text-white px-5 py-2.5 text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-sm whitespace-nowrap"
+              className="flex items-center gap-1.5 bg-[#0a6b1b] hover:bg-[#c8a84b] disabled:opacity-60 text-white px-5 py-2.5 text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-sm whitespace-nowrap"
             >
               <AddOutlinedIcon style={{ fontSize: 16 }} />
               Add
@@ -442,7 +442,7 @@ const Settings = () => {
                   className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
                 >
                   <span
-                    className="w-6 h-6 rounded-full text-[#1a3a6e] text-[10px] font-black flex items-center justify-center shrink-0"
+                    className="w-6 h-6 rounded-full text-[#0a6b1b] text-[10px] font-black flex items-center justify-center shrink-0"
                     style={{ background: "rgba(26,58,110,0.08)" }}
                   >
                     {i + 1}
@@ -457,7 +457,7 @@ const Settings = () => {
                         if (e.key === "Enter") confirmEdit();
                         if (e.key === "Escape") setEditIndex(null);
                       }}
-                      className="flex-1 border-2 border-[#1a3a6e] outline-none px-3 py-1 text-sm text-gray-700"
+                      className="flex-1 border-2 border-[#0a6b1b] outline-none px-3 py-1 text-sm text-gray-700"
                     />
                   ) : (
                     <span className="flex-1 text-sm text-gray-600 font-medium">
@@ -488,7 +488,7 @@ const Settings = () => {
                             setEditIndex(i);
                             setEditValue(pos);
                           }}
-                          className="p-1.5 rounded hover:bg-blue-50 text-gray-400 hover:text-[#1a3a6e] transition-colors"
+                          className="p-1.5 rounded hover:bg-blue-50 text-gray-400 hover:text-[#0a6b1b] transition-colors"
                         >
                           <EditOutlinedIcon style={{ fontSize: 16 }} />
                         </button>
@@ -530,7 +530,7 @@ const Settings = () => {
                 className={`flex items-center border-2 transition-colors ${
                   passStatus.status === "error"
                     ? "border-red-400 bg-red-50"
-                    : "border-gray-200 focus-within:border-[#1a3a6e] bg-white"
+                    : "border-gray-200 focus-within:border-[#0a6b1b] bg-white"
                 }`}
               >
                 <span className="pl-4 text-gray-400">
@@ -549,7 +549,7 @@ const Settings = () => {
                 <button
                   type="button"
                   onClick={() => setShowPasscode((v) => !v)}
-                  className="pr-4 text-gray-400 hover:text-[#1a3a6e] transition-colors"
+                  className="pr-4 text-gray-400 hover:text-[#0a6b1b] transition-colors"
                 >
                   {showPasscode ? (
                     <VisibilityOffOutlinedIcon style={{ fontSize: 17 }} />
@@ -568,7 +568,7 @@ const Settings = () => {
                 className={`flex items-center border-2 transition-colors ${
                   passStatus.status === "error"
                     ? "border-red-400 bg-red-50"
-                    : "border-gray-200 focus-within:border-[#1a3a6e] bg-white"
+                    : "border-gray-200 focus-within:border-[#0a6b1b] bg-white"
                 }`}
               >
                 <span className="pl-4 text-gray-400">
@@ -587,7 +587,7 @@ const Settings = () => {
                 <button
                   type="button"
                   onClick={() => setShowConfirm((v) => !v)}
-                  className="pr-4 text-gray-400 hover:text-[#1a3a6e] transition-colors"
+                  className="pr-4 text-gray-400 hover:text-[#0a6b1b] transition-colors"
                 >
                   {showConfirm ? (
                     <VisibilityOffOutlinedIcon style={{ fontSize: 17 }} />
@@ -605,7 +605,7 @@ const Settings = () => {
             <button
               onClick={savePasscode}
               disabled={passLoading}
-              className="flex items-center gap-2 px-6 py-2.5 text-xs font-black uppercase tracking-widest bg-[#1a3a6e] hover:bg-[#c8a84b] disabled:opacity-60 text-white transition-all duration-300 shadow-sm"
+              className="flex items-center gap-2 px-6 py-2.5 text-xs font-black uppercase tracking-widest bg-[#0a6b1b] hover:bg-[#c8a84b] disabled:opacity-60 text-white transition-all duration-300 shadow-sm"
             >
               {passLoading ? (
                 <svg
@@ -684,7 +684,7 @@ const Settings = () => {
               <p className="text-gray-600 text-sm mb-1">
                 Are you sure you want to remove:
               </p>
-              <p className="text-[#1a3a6e] font-black text-base mb-6">
+              <p className="text-[#0a6b1b] font-black text-base mb-6">
                 "{positions[deleteIndex]}"
               </p>
               <div className="flex gap-3">

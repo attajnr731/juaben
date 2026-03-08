@@ -6,7 +6,7 @@ import ArrowDownwardOutlinedIcon from "@mui/icons-material/ArrowDownwardOutlined
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
 
-const API = "https://juaben.onrender.com/api";
+const API = "http://localhost:3000/api";
 
 // ── Check if current time is within the election period ──
 const isWithinElectionPeriod = (period) => {
@@ -33,7 +33,7 @@ const Avatar = ({ src, name, size = "lg" }) => {
   if (!src || err) {
     return (
       <div
-        className={`${sizeClass} rounded-full bg-[#1a3a6e] text-white font-black flex items-center justify-center shrink-0`}
+        className={`${sizeClass} rounded-full bg-[#0a6b1b] text-white font-black flex items-center justify-center shrink-0`}
       >
         {initials}
       </div>
@@ -269,7 +269,7 @@ const Vote = () => {
             </p>
             <button
               onClick={() => navigate("/vote-login", { replace: true })}
-              className="w-full bg-[#1a3a6e] hover:bg-[#c8a84b] text-white font-black text-xs uppercase tracking-widest py-3.5 transition-all duration-300"
+              className="w-full bg-[#0a6b1b] hover:bg-[#c8a84b] text-white font-black text-xs uppercase tracking-widest py-3.5 transition-all duration-300"
             >
               Back to Home
             </button>
@@ -284,7 +284,7 @@ const Vote = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="text-center">
-          <p className="text-[#1a3a6e] font-black text-xl mb-2">
+          <p className="text-[#0a6b1b] font-black text-xl mb-2">
             No Positions Available
           </p>
           <p className="text-gray-400 text-sm">
@@ -307,12 +307,13 @@ const Vote = () => {
           <div className="flex items-center gap-3">
             <img
               src="/logo.png"
-              alt="Juaben SHS"
+              alt="KETE"
               className="h-8 w-8 object-contain"
             />
             <div className="hidden sm:block">
-              <p className="text-[#1a3a6e] font-black text-xs uppercase tracking-wide leading-tight">
-                Juaben <span className="text-[#c8a84b]">SHS</span>
+              <p className="text-[#0a6b1b] font-black text-xs uppercase tracking-wide leading-tight">
+                KETE-KRACHIE{" "}
+                <span className="text-[#c8a84b]">NURSING & MIDWIFERY</span>
               </p>
               <p className="text-gray-400 text-[9px] tracking-widest uppercase">
                 Voting Ballot
@@ -322,7 +323,7 @@ const Vote = () => {
 
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <p className="text-[#1a3a6e] font-black text-sm">
+              <p className="text-[#0a6b1b] font-black text-sm">
                 {currentIndex + 1}{" "}
                 <span className="text-gray-300 font-normal">
                   of {positions.length}
@@ -333,7 +334,7 @@ const Vote = () => {
               </p>
             </div>
             <div className="w-12 h-12 rounded-full border-4 border-gray-100 flex items-center justify-center">
-              <span className="text-[#1a3a6e] font-black text-sm">
+              <span className="text-[#0a6b1b] font-black text-sm">
                 {selectedCount}
               </span>
             </div>
@@ -342,7 +343,7 @@ const Vote = () => {
 
         <div className="w-full h-1 bg-gray-100">
           <div
-            className="h-full bg-[#1a3a6e] transition-all duration-500"
+            className="h-full bg-[#0a6b1b] transition-all duration-500"
             style={{
               width: `${((currentIndex + 1) / positions.length) * 100}%`,
             }}
@@ -372,7 +373,7 @@ const Vote = () => {
                     Position {posIndex + 1} of {positions.length}
                   </p>
                   <h2
-                    className="text-[#1a3a6e] text-3xl md:text-4xl font-black uppercase mb-3"
+                    className="text-[#0a6b1b] text-3xl md:text-4xl font-black uppercase mb-3"
                     style={{ fontFamily: "'Georgia', serif" }}
                   >
                     {position}
@@ -398,7 +399,7 @@ const Vote = () => {
                           onClick={() => handleSelect(posIndex, c._id)}
                           className={`group relative p-6 border-2 transition-all duration-300 hover:shadow-xl ${
                             isSelected
-                              ? "border-[#1cb507] bg-[#1a3a6e]/5 shadow-lg"
+                              ? "border-[#1cb507] bg-[#0a6b1b]/5 shadow-lg"
                               : "border-gray-200 bg-white hover:border-[#c8a84b]"
                           }`}
                         >
@@ -406,7 +407,7 @@ const Vote = () => {
                             {isSelected ? (
                               <CheckCircleOutlineOutlinedIcon
                                 style={{ fontSize: 28 }}
-                                className="text-[#1a3a6e]"
+                                className="text-[#0a6b1b]"
                               />
                             ) : (
                               <RadioButtonUncheckedOutlinedIcon
@@ -431,7 +432,7 @@ const Vote = () => {
                                 />
                               ) : null}
                               <div
-                                className="w-full h-full bg-[#1a3a6e] items-center justify-center text-white font-black text-4xl"
+                                className="w-full h-full bg-[#0a6b1b] items-center justify-center text-white font-black text-4xl"
                                 style={{
                                   display: c.profilePicture ? "none" : "flex",
                                 }}
@@ -447,7 +448,7 @@ const Vote = () => {
 
                             {/* Name + bio below */}
                             <div className="text-center px-1 pb-2">
-                              <p className="text-[#1a3a6e] font-black text-lg mb-1">
+                              <p className="text-[#0a6b1b] font-black text-lg mb-1">
                                 {c.name}
                               </p>
                               {c.bio && (
@@ -467,7 +468,7 @@ const Vote = () => {
                   {isLast ? (
                     <button
                       onClick={openConfirm}
-                      className="flex items-center gap-2 bg-[#1a3a6e] hover:bg-[#c8a84b] text-white font-black text-sm uppercase tracking-widest px-10 py-4 transition-all duration-300 shadow-lg hover:shadow-xl"
+                      className="flex items-center gap-2 bg-[#0a6b1b] hover:bg-[#c8a84b] text-white font-black text-sm uppercase tracking-widest px-10 py-4 transition-all duration-300 shadow-lg hover:shadow-xl"
                     >
                       <SendOutlinedIcon style={{ fontSize: 20 }} />
                       Review & Submit
@@ -475,7 +476,7 @@ const Vote = () => {
                   ) : (
                     <button
                       onClick={handleNext}
-                      className="flex items-center gap-2 bg-[#1a3a6e] hover:bg-[#c8a84b] text-white font-black text-sm uppercase tracking-widest px-10 py-4 transition-all duration-300 shadow-lg hover:shadow-xl"
+                      className="flex items-center gap-2 bg-[#0a6b1b] hover:bg-[#c8a84b] text-white font-black text-sm uppercase tracking-widest px-10 py-4 transition-all duration-300 shadow-lg hover:shadow-xl"
                     >
                       Next Position
                       <ArrowDownwardOutlinedIcon style={{ fontSize: 20 }} />
@@ -495,7 +496,7 @@ const Vote = () => {
           onClick={(e) => e.target === e.currentTarget && closeConfirm()}
         >
           <div className="bg-white w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="bg-[#1a3a6e] px-6 py-5 flex items-center justify-between sticky top-0 z-10">
+            <div className="bg-[#0a6b1b] px-6 py-5 flex items-center justify-between sticky top-0 z-10">
               <div className="flex items-center gap-2.5">
                 <HowToVoteOutlinedIcon
                   style={{ fontSize: 20 }}
@@ -515,7 +516,7 @@ const Vote = () => {
 
             <div className="px-6 py-6">
               <div className="bg-gray-50 border border-gray-100 p-4 mb-6 flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-[#1a3a6e] flex items-center justify-center text-white font-black shrink-0">
+                <div className="w-12 h-12 rounded-full bg-[#0a6b1b] flex items-center justify-center text-white font-black shrink-0">
                   {voter.name
                     .split(" ")
                     .map((w) => w[0])
@@ -524,7 +525,7 @@ const Vote = () => {
                     .toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-[#1a3a6e] font-black text-sm">
+                  <p className="text-[#0a6b1b] font-black text-sm">
                     {voter.name}
                   </p>
                   <p className="text-gray-400 text-xs font-mono">
@@ -534,7 +535,7 @@ const Vote = () => {
               </div>
 
               <div className="mb-6">
-                <p className="text-[#1a3a6e] font-black text-xs uppercase tracking-widest mb-3">
+                <p className="text-[#0a6b1b] font-black text-xs uppercase tracking-widest mb-3">
                   Your Selections
                 </p>
                 <div className="flex flex-col gap-3">
@@ -552,7 +553,7 @@ const Vote = () => {
                           <p className="text-gray-400 text-[10px] uppercase tracking-widest font-bold">
                             {pos}
                           </p>
-                          <p className="text-[#1a3a6e] font-bold text-sm mt-0.5">
+                          <p className="text-[#0a6b1b] font-bold text-sm mt-0.5">
                             {candidate ? (
                               candidate.name
                             ) : (
@@ -595,7 +596,7 @@ const Vote = () => {
                 <button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="flex-1 bg-[#1a3a6e] hover:bg-[#16a34a] disabled:opacity-60 text-white font-black text-xs uppercase tracking-widest py-3.5 transition-all duration-300 flex items-center justify-center gap-2"
+                  className="flex-1 bg-[#0a6b1b] hover:bg-[#16a34a] disabled:opacity-60 text-white font-black text-xs uppercase tracking-widest py-3.5 transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   {submitting ? (
                     <>

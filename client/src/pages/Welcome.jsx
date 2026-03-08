@@ -16,26 +16,25 @@ const Welcome = () => {
         <div className="flex items-center gap-3">
           <img
             src="/logo.png"
-            alt="Juaben SHS Logo"
+            alt="KETE-KRACHIE  Logo"
             className="h-12 w-12 object-contain"
           />
           <div className="hidden sm:block">
-            <p className="text-[#1a3a6e] font-black text-sm uppercase tracking-wide leading-tight">
-              Juaben Senior High
+            <p className="text-[#0e8c25] font-black text-sm uppercase tracking-wide leading-tight">
+              KETE-KRACHIE NURSING & MIDWIFERY
             </p>
             <p className="text-gray-400 text-[10px] tracking-widest uppercase">
               Student Elections
             </p>
           </div>
         </div>
-
       </nav>
 
       {/* ── HERO ── */}
       <section className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden pt-20">
         <img
           src="/hero.jpg"
-          alt="Juaben SHS campus"
+          alt="KETE-KRACHIE SHS campus"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-white via-white/60 to-white" />
@@ -46,21 +45,21 @@ const Welcome = () => {
         >
           <div className="flex items-center gap-3 mb-8">
             <span className="h-px w-10 bg-[#c8a84b]" />
-            <span className="bg-[#1a3a6e] text-white text-[10px] tracking-[0.3em] uppercase font-semibold px-4 py-1.5 rounded-full">
+            <span className="bg-[#0e8c25] text-white text-[10px] tracking-[0.3em] uppercase font-semibold px-4 py-1.5 rounded-full">
               Official Election Portal · 2026
             </span>
             <span className="h-px w-10 bg-[#c8a84b]" />
           </div>
 
           <h1
-            className="text-[#1a3a6e] font-black uppercase leading-none mb-2"
+            className="text-[#0e8c25] font-black uppercase leading-none mb-2"
             style={{
               fontFamily: "'Georgia', serif",
               fontSize: "clamp(2.8rem, 8vw, 6rem)",
               letterSpacing: "-0.02em",
             }}
           >
-            Juaben
+            KETE-KRACHIE
           </h1>
           <h1
             className="font-black uppercase leading-none mb-6"
@@ -74,7 +73,7 @@ const Welcome = () => {
               WebkitTextFillColor: "transparent",
             }}
           >
-            Senior High
+            NURSING & MIDWIFERY
           </h1>
 
           <p className="text-gray-500 text-base md:text-lg max-w-lg mb-10 leading-relaxed">
@@ -82,7 +81,7 @@ const Welcome = () => {
             and fully transparent student election.
           </p>
           <Link to="/login">
-            <button className="group inline-flex items-center gap-2 bg-[#1a3a6e] hover:bg-[#c8a84b] text-white font-bold text-sm tracking-widest uppercase px-10 py-4 transition-all duration-300 shadow-lg hover:shadow-xl">
+            <button className="group inline-flex items-center gap-2 bg-[#0e8c25] hover:bg-[#c8a84b] text-white font-bold text-sm tracking-widest uppercase px-10 py-4 transition-all duration-300 shadow-lg hover:shadow-xl">
               <span>Admin Login</span>
               <svg
                 className="w-4 h-4 group-hover:translate-x-1 transition-transform"
@@ -116,14 +115,14 @@ const Welcome = () => {
               Why Participate
             </p>
             <h2
-              className="text-[#1a3a6e] text-3xl md:text-4xl font-black uppercase"
+              className="text-[#0e8c25] text-3xl md:text-4xl font-black uppercase"
               style={{ fontFamily: "'Georgia', serif" }}
             >
               Democracy Starts Here
             </h2>
             <p className="text-gray-400 mt-4 max-w-md mx-auto text-sm">
-              Every vote counts. Be part of the change you want to see in Juaben
-              Senior High School.
+              Every vote counts. Be part of the change you want to see in
+              KETE-KRACHIE NURSING & MIDWIFERY.
             </p>
           </div>
 
@@ -150,7 +149,7 @@ const Welcome = () => {
                 className="bg-white border border-gray-100 hover:border-[#c8a84b] hover:shadow-xl transition-all duration-300 p-10 group"
               >
                 <span className="text-4xl mb-5 block">{card.icon}</span>
-                <h3 className="text-[#1a3a6e] font-black text-lg uppercase tracking-wide mb-3 group-hover:text-[#c8a84b] transition-colors">
+                <h3 className="text-[#0e8c25] font-black text-lg uppercase tracking-wide mb-3 group-hover:text-[#c8a84b] transition-colors">
                   {card.title}
                 </h3>
                 <p className="text-gray-400 text-sm leading-relaxed">
@@ -169,7 +168,7 @@ const Welcome = () => {
             Simple Process
           </p>
           <h2
-            className="text-[#1a3a6e] text-3xl md:text-4xl font-black uppercase mb-16"
+            className="text-[#0e8c25] text-3xl md:text-4xl font-black uppercase mb-16"
             style={{ fontFamily: "'Georgia', serif" }}
           >
             How to Vote
@@ -200,7 +199,7 @@ const Welcome = () => {
                   {item.step}
                 </span>
                 <div className="w-12 h-px bg-[#c8a84b]" />
-                <h4 className="text-[#1a3a6e] font-black uppercase tracking-widest text-sm">
+                <h4 className="text-[#0e8c25] font-black uppercase tracking-widest text-sm">
                   {item.title}
                 </h4>
                 <p className="text-gray-400 text-sm leading-relaxed">
@@ -222,7 +221,7 @@ const Welcome = () => {
               className="h-8 w-8 object-contain opacity-60"
             />
             <span className="text-gray-400 text-xs tracking-widest uppercase">
-              Juaben Senior High School
+              KETE-KRACHIE NURSING & MIDWIFERY
             </span>
           </div>
           <p className="text-gray-300 text-xs">

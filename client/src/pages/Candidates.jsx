@@ -15,7 +15,7 @@ import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import * as XLSX from "xlsx";
 
-const API = "https://juaben.onrender.com/api";
+const API = "http://localhost:3000/api";
 
 const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -100,7 +100,7 @@ const Stat = ({ icon, label, value, accent }) => (
       <p className="text-gray-400 text-[10px] uppercase tracking-widest font-bold">
         {label}
       </p>
-      <p className="text-[#1a3a6e] text-xl font-black">{value}</p>
+      <p className="text-[#0a6b1b] text-xl font-black">{value}</p>
     </div>
   </div>
 );
@@ -119,7 +119,7 @@ const Avatar = ({ src, name, size = "md" }) => {
   if (!src || err) {
     return (
       <div
-        className={`${sizeClass} rounded-full bg-[#1a3a6e] text-white font-black flex items-center justify-center shrink-0`}
+        className={`${sizeClass} rounded-full bg-[#0a6b1b] text-white font-black flex items-center justify-center shrink-0`}
       >
         {initials}
       </div>
@@ -140,24 +140,24 @@ const ImagePicker = ({ preview, onChange }) => {
   const ref = useRef(null);
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-[10px] font-black text-[#1a3a6e] uppercase tracking-widest">
+      <label className="text-[10px] font-black text-[#0a6b1b] uppercase tracking-widest">
         Photo
       </label>
       <div
         onClick={() => ref.current?.click()}
-        className="border-2 border-dashed border-gray-200 hover:border-[#1a3a6e] transition-colors cursor-pointer flex items-center justify-center gap-3 py-4 group"
+        className="border-2 border-dashed border-gray-200 hover:border-[#0a6b1b] transition-colors cursor-pointer flex items-center justify-center gap-3 py-4 group"
       >
         {preview ? (
           <img
             src={preview}
             alt="preview"
-            className="h-16 w-16 rounded-full object-cover border-2 border-[#1a3a6e]/20"
+            className="h-16 w-16 rounded-full object-cover border-2 border-[#0a6b1b]/20"
           />
         ) : (
           <div className="flex flex-col items-center gap-1">
             <AddPhotoAlternateOutlinedIcon
               style={{ fontSize: 28 }}
-              className="text-gray-300 group-hover:text-[#1a3a6e] transition-colors"
+              className="text-gray-300 group-hover:text-[#0a6b1b] transition-colors"
             />
             <p className="text-gray-400 text-xs">Click to upload image</p>
             <p className="text-gray-300 text-[10px]">
@@ -442,7 +442,7 @@ const Candidates = () => {
             </p>
 
             <h1
-              className="text-[#1a3a6e] font-black uppercase text-2xl md:text-3xl"
+              className="text-[#0a6b1b] font-black uppercase text-2xl md:text-3xl"
               style={{ fontFamily: "'Georgia', serif" }}
             >
               Candidates
@@ -475,7 +475,7 @@ const Candidates = () => {
                       setSearchOpen(false);
                       setSearch("");
                     }}
-                    className="pr-3 text-gray-400 hover:text-[#1a3a6e]"
+                    className="pr-3 text-gray-400 hover:text-[#0a6b1b]"
                   >
                     <CloseOutlinedIcon style={{ fontSize: 16 }} />
                   </button>
@@ -483,14 +483,14 @@ const Candidates = () => {
               ) : (
                 <button
                   onClick={() => setSearchOpen(true)}
-                  className="p-2.5 border border-gray-300 rounded-md text-gray-500 hover:border-[#1a3a6e] hover:text-[#1a3a6e] transition"
+                  className="p-2.5 border border-gray-300 rounded-md text-gray-500 hover:border-[#0a6b1b] hover:text-[#0a6b1b] transition"
                 >
                   <SearchOutlinedIcon style={{ fontSize: 20 }} />
                 </button>
               )}
 
               {/* Position Filter */}
-              <div className="flex items-center border border-gray-300 rounded-md bg-white hover:border-[#1a3a6e] transition">
+              <div className="flex items-center border border-gray-300 rounded-md bg-white hover:border-[#0a6b1b] transition">
                 <span className="pl-3 text-gray-400">
                   <FilterListOutlinedIcon style={{ fontSize: 18 }} />
                 </span>
@@ -512,7 +512,7 @@ const Candidates = () => {
               <button
                 onClick={() => fetchCandidates()}
                 title="Refresh"
-                className="p-2.5 border border-gray-300 rounded-md text-gray-500 hover:border-[#1a3a6e] hover:text-[#1a3a6e] transition"
+                className="p-2.5 border border-gray-300 rounded-md text-gray-500 hover:border-[#0a6b1b] hover:text-[#0a6b1b] transition"
               >
                 <RefreshOutlinedIcon style={{ fontSize: 20 }} />
               </button>
@@ -534,7 +534,7 @@ const Candidates = () => {
             {/* Primary Action */}
             <button
               onClick={openAdd}
-              className="flex items-center gap-2 bg-[#1a3a6e] hover:bg-[#c8a84b] text-white px-5 py-2.5 text-xs font-black uppercase tracking-widest rounded-md shadow-md transition"
+              className="flex items-center gap-2 bg-[#0a6b1b] hover:bg-[#c8a84b] text-white px-5 py-2.5 text-xs font-black uppercase tracking-widest rounded-md shadow-md transition"
             >
               <PersonAddOutlinedIcon style={{ fontSize: 17 }} />
               Add Candidate
@@ -558,7 +558,7 @@ const Candidates = () => {
             icon={<PeopleOutlineOutlinedIcon style={{ fontSize: 22 }} />}
             label="Total Candidates"
             value={loading ? "—" : candidates.length}
-            accent="#1a3a6e"
+            accent="#0a6b1b"
           />
           <Stat
             icon={<WorkOutlineOutlinedIcon style={{ fontSize: 22 }} />}
@@ -577,7 +577,7 @@ const Candidates = () => {
         {/* ── Table ── */}
         <div className="bg-white border border-gray-100 shadow-sm overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-            <p className="text-[#1a3a6e] font-black text-sm uppercase tracking-wide">
+            <p className="text-[#0a6b1b] font-black text-sm uppercase tracking-wide">
               Registered Candidates
               {(search || filterPos) && !loading && (
                 <span className="ml-2 text-gray-400 font-normal normal-case text-xs">
@@ -638,14 +638,14 @@ const Candidates = () => {
                       </td>
                       <td className="px-6 py-3.5">
                         <span
-                          className="inline-flex items-center text-[#1a3a6e] text-[10px] font-black uppercase tracking-widest px-2.5 py-1"
+                          className="inline-flex items-center text-[#0a6b1b] text-[10px] font-black uppercase tracking-widest px-2.5 py-1"
                           style={{ background: "rgba(26,58,110,0.08)" }}
                         >
                           {c.position}
                         </span>
                       </td>
                       <td className="px-6 py-3.5">
-                        <span className="font-black text-[#1a3a6e] text-sm">
+                        <span className="font-black text-[#0a6b1b] text-sm">
                           {c.voteCount ?? 0}
                         </span>
                       </td>
@@ -656,7 +656,7 @@ const Candidates = () => {
                           </span>
                           <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-[#1a3a6e] rounded-full transition-all"
+                              className="h-full bg-[#0a6b1b] rounded-full transition-all"
                               style={{ width: `${c.percentage}%` }}
                             />
                           </div>
@@ -666,7 +666,7 @@ const Candidates = () => {
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => openEdit(c)}
-                            className="p-1.5 rounded hover:bg-blue-50 text-gray-400 hover:text-[#1a3a6e] transition-colors"
+                            className="p-1.5 rounded hover:bg-blue-50 text-gray-400 hover:text-[#0a6b1b] transition-colors"
                           >
                             <EditOutlinedIcon style={{ fontSize: 17 }} />
                           </button>
@@ -712,7 +712,7 @@ const Candidates = () => {
           onClick={(e) => e.target === e.currentTarget && closeModal()}
         >
           <div className="bg-white w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="bg-[#1a3a6e] px-6 py-5 flex items-center justify-between sticky top-0 z-10">
+            <div className="bg-[#0a6b1b] px-6 py-5 flex items-center justify-between sticky top-0 z-10">
               <div className="flex items-center gap-2.5">
                 <PersonAddOutlinedIcon
                   style={{ fontSize: 18 }}
@@ -737,7 +737,7 @@ const Candidates = () => {
               />
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-[#1a3a6e] uppercase tracking-widest">
+                <label className="text-[10px] font-black text-[#0a6b1b] uppercase tracking-widest">
                   Full Name
                 </label>
                 <input
@@ -747,7 +747,7 @@ const Candidates = () => {
                     setFormErrors((p) => ({ ...p, name: "" }));
                   }}
                   placeholder="e.g. Kwame Asante"
-                  className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors ${formErrors.name ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[#1a3a6e]"}`}
+                  className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors ${formErrors.name ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[#0a6b1b]"}`}
                 />
                 {formErrors.name && (
                   <p className="text-red-500 text-xs">{formErrors.name}</p>
@@ -755,7 +755,7 @@ const Candidates = () => {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-[#1a3a6e] uppercase tracking-widest">
+                <label className="text-[10px] font-black text-[#0a6b1b] uppercase tracking-widest">
                   Position
                 </label>
                 {positions.length > 0 ? (
@@ -765,7 +765,7 @@ const Candidates = () => {
                       setForm((p) => ({ ...p, position: e.target.value }));
                       setFormErrors((p) => ({ ...p, position: "" }));
                     }}
-                    className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 bg-white transition-colors ${formErrors.position ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[#1a3a6e]"}`}
+                    className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 bg-white transition-colors ${formErrors.position ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[#0a6b1b]"}`}
                   >
                     <option value="">Select a position…</option>
                     {positions.map((p) => (
@@ -782,7 +782,7 @@ const Candidates = () => {
                       setFormErrors((p) => ({ ...p, position: "" }));
                     }}
                     placeholder="e.g. School Prefect"
-                    className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors ${formErrors.position ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[#1a3a6e]"}`}
+                    className={`border-2 outline-none px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 transition-colors ${formErrors.position ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[#0a6b1b]"}`}
                   />
                 )}
                 {formErrors.position && (
@@ -805,7 +805,7 @@ const Candidates = () => {
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="flex-1 bg-[#1a3a6e] hover:bg-[#c8a84b] disabled:opacity-60 text-white font-black text-xs uppercase tracking-widest py-3 transition-all duration-300 flex items-center justify-center gap-2"
+                  className="flex-1 bg-[#0a6b1b] hover:bg-[#c8a84b] disabled:opacity-60 text-white font-black text-xs uppercase tracking-widest py-3 transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   {saving ? (
                     <Spinner />
@@ -848,7 +848,7 @@ const Candidates = () => {
                   size="lg"
                 />
                 <div>
-                  <p className="text-[#1a3a6e] font-black text-base">
+                  <p className="text-[#0a6b1b] font-black text-base">
                     {deleteTarget.name}
                   </p>
                   <p className="text-gray-400 text-xs mt-0.5">

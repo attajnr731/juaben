@@ -10,7 +10,7 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 
-const API_BASE = "https://juaben.onrender.com/api";
+const API = "http://localhost:3000/api";
 
 const PasswordInput = ({
   value,
@@ -20,7 +20,7 @@ const PasswordInput = ({
   placeholder,
   autoFocus,
 }) => (
-  <div className="flex items-center border-2 border-gray-200 focus-within:border-[#1a3a6e] bg-white transition-colors">
+  <div className="flex items-center border-2 border-gray-200 focus-within:border-[#0a6b1b] bg-white transition-colors">
     <input
       autoFocus={autoFocus}
       type={show ? "text" : "password"}
@@ -32,7 +32,7 @@ const PasswordInput = ({
     <button
       type="button"
       onClick={onToggle}
-      className="pr-3 text-gray-400 hover:text-[#1a3a6e] transition-colors"
+      className="pr-3 text-gray-400 hover:text-[#0a6b1b] transition-colors"
     >
       {show ? (
         <VisibilityOffOutlinedIcon style={{ fontSize: 17 }} />
@@ -97,11 +97,11 @@ const EditableField = ({ icon, label, value, type = "text", onSave }) => {
     <div className="py-5 flex items-start gap-4">
       <span className="text-gray-400 mt-0.5">{icon}</span>
       <div className="flex-1 min-w-0">
-        <p className="text-[#1a3a6e] text-[10px] font-black uppercase tracking-widest mb-2">
+        <p className="text-[#0a6b1b] text-[10px] font-black uppercase tracking-widest mb-2">
           {label}
         </p>
         {editing ? (
-          <div className="flex items-center border-2 border-[#1a3a6e] bg-white">
+          <div className="flex items-center border-2 border-[#0a6b1b] bg-white">
             <input
               autoFocus
               type={type}
@@ -144,7 +144,7 @@ const EditableField = ({ icon, label, value, type = "text", onSave }) => {
             <button
               onClick={handleSave}
               disabled={loading}
-              className="p-2 rounded-lg bg-[#1a3a6e] text-white hover:bg-[#c8a84b] transition-colors disabled:opacity-50"
+              className="p-2 rounded-lg bg-[#0a6b1b] text-white hover:bg-[#c8a84b] transition-colors disabled:opacity-50"
             >
               {loading ? <Spinner /> : <CheckIcon style={{ fontSize: 17 }} />}
             </button>
@@ -155,7 +155,7 @@ const EditableField = ({ icon, label, value, type = "text", onSave }) => {
               setEditing(true);
               setSuccess("");
             }}
-            className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-[#1a3a6e] transition-colors"
+            className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-[#0a6b1b] transition-colors"
           >
             <EditOutlinedIcon style={{ fontSize: 17 }} />
           </button>
@@ -213,7 +213,7 @@ const PasswordField = ({ onSave }) => {
         <LockOutlinedIcon style={{ fontSize: 18 }} />
       </span>
       <div className="flex-1 min-w-0">
-        <p className="text-[#1a3a6e] text-[10px] font-black uppercase tracking-widest mb-2">
+        <p className="text-[#0a6b1b] text-[10px] font-black uppercase tracking-widest mb-2">
           Password
         </p>
         {editing ? (
@@ -279,7 +279,7 @@ const PasswordField = ({ onSave }) => {
             <button
               onClick={handleSave}
               disabled={loading}
-              className="p-2 rounded-lg bg-[#1a3a6e] text-white hover:bg-[#c8a84b] transition-colors disabled:opacity-50"
+              className="p-2 rounded-lg bg-[#0a6b1b] text-white hover:bg-[#c8a84b] transition-colors disabled:opacity-50"
             >
               {loading ? <Spinner /> : <CheckIcon style={{ fontSize: 17 }} />}
             </button>
@@ -290,7 +290,7 @@ const PasswordField = ({ onSave }) => {
               setEditing(true);
               setSuccess("");
             }}
-            className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-[#1a3a6e] transition-colors"
+            className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-[#0a6b1b] transition-colors"
           >
             <EditOutlinedIcon style={{ fontSize: 17 }} />
           </button>
@@ -344,7 +344,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
       <div className="w-full max-w-lg">
-        <div className="inline-flex items-center gap-2 bg-[#1a3a6e]/10 text-[#1a3a6e] px-4 py-1.5 rounded-full mb-6">
+        <div className="inline-flex items-center gap-2 bg-[#0a6b1b]/10 text-[#0a6b1b] px-4 py-1.5 rounded-full mb-6">
           <AdminPanelSettingsOutlinedIcon style={{ fontSize: 16 }} />
           <span className="text-[10px] font-black uppercase tracking-widest">
             Admin Profile
@@ -352,7 +352,7 @@ const Profile = () => {
         </div>
 
         <div className="bg-white border border-gray-100 shadow-sm rounded-2xl overflow-hidden">
-          <div className="bg-[#1a3a6e] px-8 py-8 flex items-center gap-5 relative overflow-hidden">
+          <div className="bg-[#0a6b1b] px-8 py-8 flex items-center gap-5 relative overflow-hidden">
             <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/5" />
             <div className="absolute -bottom-8 -left-4 w-32 h-32 rounded-full bg-white/5" />
             <div className="relative z-10 w-16 h-16 rounded-full bg-[#c8a84b]/20 border-2 border-[#c8a84b]/40 flex items-center justify-center text-[#c8a84b] font-black text-xl shrink-0">

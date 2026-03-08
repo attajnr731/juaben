@@ -12,7 +12,7 @@ import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
 import LiveTvIcon from "@mui/icons-material/LiveTv";
 import { Link } from "react-router-dom";
 
-const API = "https://juaben.onrender.com/api";
+const API = "http://localhost:3000/api";
 
 const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -43,20 +43,20 @@ const StatCard = ({ icon, label, value, subtext, accent, trend }) => (
       <p className="text-gray-400 text-[10px] uppercase tracking-widest font-bold mb-1">
         {label}
       </p>
-      <p className="text-[#1a3a6e] text-3xl font-black">{value}</p>
+      <p className="text-[#0a6b1b] text-3xl font-black">{value}</p>
       {subtext && <p className="text-gray-400 text-xs mt-1">{subtext}</p>}
     </div>
   </div>
 );
 
 // ── Progress bar ──
-const ProgressBar = ({ label, value, total, color = "#1a3a6e" }) => {
+const ProgressBar = ({ label, value, total, color = "#0a6b1b" }) => {
   const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between text-sm">
         <span className="text-gray-600 font-medium">{label}</span>
-        <span className="text-[#1a3a6e] font-black">
+        <span className="text-[#0a6b1b] font-black">
           {value} / {total}
         </span>
       </div>
@@ -76,8 +76,8 @@ const Section = ({ title, icon, children, action }) => (
   <div className="bg-white border border-gray-100 shadow-sm overflow-hidden">
     <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
       <div className="flex items-center gap-2.5">
-        <span className="text-[#1a3a6e]">{icon}</span>
-        <h3 className="text-[#1a3a6e] font-black text-sm uppercase tracking-wide">
+        <span className="text-[#0a6b1b]">{icon}</span>
+        <h3 className="text-[#0a6b1b] font-black text-sm uppercase tracking-wide">
           {title}
         </h3>
       </div>
@@ -98,7 +98,7 @@ const Avatar = ({ src, name }) => {
     .toUpperCase();
   if (!src || err) {
     return (
-      <div className="w-10 h-10 rounded-full bg-[#1a3a6e] text-white font-black flex items-center justify-center shrink-0 text-sm">
+      <div className="w-10 h-10 rounded-full bg-[#0a6b1b] text-white font-black flex items-center justify-center shrink-0 text-sm">
         {initials}
       </div>
     );
@@ -244,7 +244,7 @@ const Insights = () => {
             </p>
 
             <h1
-              className="text-[#1a3a6e] font-black uppercase text-2xl md:text-3xl"
+              className="text-[#0a6b1b] font-black uppercase text-2xl md:text-3xl"
               style={{ fontFamily: "'Georgia', serif" }}
             >
               Insights & Analytics
@@ -264,7 +264,7 @@ const Insights = () => {
               className="flex items-center gap-2 
         border border-gray-300 
         text-gray-600 
-        hover:border-[#1a3a6e] hover:text-[#1a3a6e] 
+        hover:border-[#0a6b1b] hover:text-[#0a6b1b] 
         px-4 py-2 
         text-xs font-bold uppercase tracking-wider 
         rounded-md 
@@ -281,7 +281,7 @@ const Insights = () => {
             <Link
               to="/admin/live-voting"
               className="flex items-center gap-2 
-        bg-[#1a3a6e] hover:bg-[#c8a84b] 
+        bg-[#0a6b1b] hover:bg-[#c8a84b] 
         text-white 
         px-5 py-2.5 
         text-xs font-black uppercase tracking-widest 
@@ -359,7 +359,7 @@ const Insights = () => {
             label="Total Voters"
             value={totalVoters.toLocaleString()}
             subtext={`${votedCount} voted, ${pendingCount} pending`}
-            accent="#1a3a6e"
+            accent="#0a6b1b"
           />
           <StatCard
             icon={<HowToVoteOutlinedIcon style={{ fontSize: 26 }} />}
@@ -423,7 +423,7 @@ const Insights = () => {
                     <p className="text-gray-400 text-[10px] uppercase tracking-widest font-bold">
                       Voted
                     </p>
-                    <p className="text-[#1a3a6e] text-xl font-black">
+                    <p className="text-[#0a6b1b] text-xl font-black">
                       {votedCount}
                     </p>
                   </div>
@@ -439,7 +439,7 @@ const Insights = () => {
                     <p className="text-gray-400 text-[10px] uppercase tracking-widest font-bold">
                       Pending
                     </p>
-                    <p className="text-[#1a3a6e] text-xl font-black">
+                    <p className="text-[#0a6b1b] text-xl font-black">
                       {pendingCount}
                     </p>
                   </div>
@@ -487,7 +487,7 @@ const Insights = () => {
                       </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-[#1a3a6e] font-black text-lg">
+                      <p className="text-[#0a6b1b] font-black text-lg">
                         {c.voteCount || 0}
                       </p>
                       <p className="text-gray-400 text-[10px] uppercase tracking-widest">
@@ -526,7 +526,7 @@ const Insights = () => {
                     className="border border-gray-100 p-4 flex flex-col gap-3"
                   >
                     <div className="flex items-center justify-between">
-                      <h4 className="text-[#1a3a6e] font-black text-sm uppercase tracking-wide">
+                      <h4 className="text-[#0a6b1b] font-black text-sm uppercase tracking-wide">
                         {position}
                       </h4>
                       <span className="text-gray-400 text-xs font-semibold">
@@ -543,7 +543,7 @@ const Insights = () => {
                         <p className="text-gray-400 text-xs">Current Leader</p>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-[#1a3a6e] font-black text-xl">
+                        <p className="text-[#0a6b1b] font-black text-xl">
                           {leader.voteCount || 0}
                         </p>
                       </div>
@@ -553,7 +553,7 @@ const Insights = () => {
                       <span className="text-gray-400">
                         Total votes in position
                       </span>
-                      <span className="text-[#1a3a6e] font-black">
+                      <span className="text-[#0a6b1b] font-black">
                         {positionVotes}
                       </span>
                     </div>
