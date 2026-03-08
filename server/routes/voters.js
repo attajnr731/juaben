@@ -7,6 +7,7 @@ import {
   deleteAllVoters,
   markVoted,
   resetAllVoters,
+  verifyVoterOtp,
 } from "../controllers/voter.js";
 
 const router = express.Router();
@@ -18,5 +19,6 @@ router.delete("/", deleteAllVoters); // DELETE /api/voters
 router.post("/reset", resetAllVoters); // POST /api/voters/reset
 router.delete("/:id", deleteVoter); // DELETE /api/voters/:id
 router.patch("/:id/vote", markVoted); // PATCH  /api/voters/:id/vote
+router.post("/verify", verifyVoterOtp); // POST /api/voters/verify  ← add this
 
 export default router;

@@ -1,13 +1,15 @@
+// models/Settings.js
 import mongoose from "mongoose";
+
+const otpSchema = new mongoose.Schema({
+  code: { type: String, required: true },
+  used: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+});
 
 const settingsSchema = new mongoose.Schema(
   {
-    // Only one settings document should ever exist (singleton)
-    singleton: {
-      type: String,
-      default: "global",
-      unique: true,
-    },
+    singleton: { type: String, default: "global", unique: true },
 
     electionPeriod: {
       startDate: { type: String, default: "" },
@@ -16,21 +18,13 @@ const settingsSchema = new mongoose.Schema(
       endTime: { type: String, default: "" },
     },
 
-    positions: {
-      type: [String],
-      default: [],
-    },
+    positions: { type: [String], default: [] },
+    votingPasscode: { type: String, default: "123456", minlength: 4 },
 
-    // Store the passcode as plain text.
-    // If you want it hashed, swap to bcrypt like the Admin model.
-    votingPasscode: {
-      type: String,
-      default: "123456",
-      minlength: 4,
-    },
+    // ── NEW ──
+    otps: { type: [otpSchema], default: [] },
   },
   { timestamps: true },
 );
 
-const Settings = mongoose.model("Settings", settingsSchema);
-export default Settings;
+export default mongoose.model("Settings", settingsSchema);

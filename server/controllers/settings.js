@@ -119,3 +119,58 @@ export const deleteElectionData = async (req, res) => {
     res.status(500).json({ message: "Failed to delete election data." });
   }
 };
+
+// ─────────────────────────────────────
+// POST /api/settings/otp/generate
+// Admin generates one 5-char alphanumeric OTP
+// ─────────────────────────────────────
+export const generateOtp = async (req, res) => {
+  try {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "";
+    for (let i = 0; i < 5; i++)
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+
+    await Settings.findOneAndUpdate(
+      { singleton: "global" },
+      { $push: { otps: { code, used: false, createdAt: new Date() } } },
+      { upsert: true, new: true },
+    );
+
+    return res.status(201).json({ message: "OTP generated.", code });
+  } catch (err) {
+    console.error("generateOtp error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ─────────────────────────────────────
+// GET /api/settings/otps
+// Returns all OTPs (admin view)
+// ─────────────────────────────────────
+export const getOtps = async (req, res) => {
+  try {
+    const settings = await getOrCreate();
+    return res.status(200).json({ otps: settings.otps || [] });
+  } catch (err) {
+    console.error("getOtps error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ─────────────────────────────────────
+// DELETE /api/settings/otps/used
+// Clears all used OTPs to keep the list clean
+// ─────────────────────────────────────
+export const clearUsedOtps = async (req, res) => {
+  try {
+    await Settings.findOneAndUpdate(
+      { singleton: "global" },
+      { $pull: { otps: { used: true } } },
+    );
+    return res.status(200).json({ message: "Used OTPs cleared." });
+  } catch (err) {
+    console.error("clearUsedOtps error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};

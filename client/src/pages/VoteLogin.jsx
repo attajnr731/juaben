@@ -4,10 +4,10 @@ import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined
 import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import KeyOutlinedIcon from "@mui/icons-material/KeyOutlined";
 
 const API = "https://juaben.onrender.com/api";
 
-// ── Spinner ──
 const Spinner = ({ className = "w-4 h-4" }) => (
   <svg className={`${className} animate-spin`} fill="none" viewBox="0 0 24 24">
     <circle
@@ -22,20 +22,17 @@ const Spinner = ({ className = "w-4 h-4" }) => (
   </svg>
 );
 
-// ── Check if current time is within the election period ──
 const isWithinElectionPeriod = (period) => {
   if (!period) return false;
   const { startDate, startTime, endDate, endTime } = period;
   if (!startDate || !startTime || !endDate || !endTime) return false;
-
   const now = new Date();
-  const start = new Date(`${startDate}T${startTime}`);
-  const end = new Date(`${endDate}T${endTime}`);
-
-  return now >= start && now <= end;
+  return (
+    now >= new Date(`${startDate}T${startTime}`) &&
+    now <= new Date(`${endDate}T${endTime}`)
+  );
 };
 
-// ── Format date nicely ──
 const formatDateTime = (date, time) => {
   if (!date || !time) return "—";
   return new Date(`${date}T${time}`).toLocaleString([], {
@@ -51,19 +48,16 @@ const formatDateTime = (date, time) => {
 const VoteLogin = () => {
   const navigate = useNavigate();
 
-  // ── Election period state ──
   const [periodLoading, setPeriodLoading] = useState(true);
   const [electionPeriod, setElectionPeriod] = useState(null);
   const [votingOpen, setVotingOpen] = useState(false);
 
-  // ── Voter login state ──
   const [voterId, setVoterId] = useState("");
-  const [voter, setVoter] = useState(null);
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [shaking, setShaking] = useState(false);
 
-  // ── Fetch election period on mount ──
   useEffect(() => {
     const fetchPeriod = async () => {
       try {
@@ -72,8 +66,7 @@ const VoteLogin = () => {
         const period = data.electionPeriod || null;
         setElectionPeriod(period);
         setVotingOpen(isWithinElectionPeriod(period));
-      } catch (err) {
-        console.error("Failed to fetch election period:", err);
+      } catch {
         setVotingOpen(false);
       } finally {
         setPeriodLoading(false);
@@ -94,106 +87,91 @@ const VoteLogin = () => {
       setError("Please enter your Voter ID.");
       return;
     }
+    if (!otp.trim()) {
+      setError("Please enter your OTP.");
+      return;
+    }
+    if (otp.trim().length !== 5) {
+      setError("OTP must be exactly 5 characters.");
+      triggerShake();
+      return;
+    }
 
     setLoading(true);
     setError("");
 
     try {
-      const res = await fetch(
-        `${API}/voters?search=${encodeURIComponent(voterId.trim())}`,
-      );
+      const res = await fetch(`${API}/voters/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentId: voterId.trim(),
+          otp: otp.trim().toUpperCase(),
+        }),
+      });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Failed to verify ID.");
-      }
-
-      const match = data.find(
-        (v) => v.studentId.toLowerCase() === voterId.trim().toLowerCase(),
-      );
-
-      if (!match) {
-        setError("Voter ID not found. Please check and try again.");
+        setError(data.message || "Verification failed.");
         triggerShake();
         return;
       }
 
-      if (match.hasVoted) {
-        setError("You have already voted.");
-        triggerShake();
-        return;
-      }
-
-      // ✅ DIRECTLY GO TO VOTE PAGE
-      navigate("/vote", { state: { voter: match } });
-    } catch (err) {
-      setError(err.message || "Server error. Please try again.");
+      navigate("/vote", { state: { voter: data.voter } });
+    } catch {
+      setError("Server error. Please try again.");
       triggerShake();
     } finally {
       setLoading(false);
     }
   };
 
-  // ── Proceed to voting ──
-  const handleProceed = () => {
-    if (!voter) return;
-    navigate("/vote", { state: { voter } });
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <style>{`
         @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          20%       { transform: translateX(-10px); }
-          40%       { transform: translateX(10px); }
-          60%       { transform: translateX(-6px); }
-          80%       { transform: translateX(6px); }
+          0%,100%{transform:translateX(0)}
+          20%{transform:translateX(-10px)}
+          40%{transform:translateX(10px)}
+          60%{transform:translateX(-6px)}
+          80%{transform:translateX(6px)}
         }
-        .shake { animation: shake 0.45s ease; }
+        .shake{animation:shake 0.45s ease}
       `}</style>
 
-      {/* ── Header ── */}
+      {/* Header */}
       <header className="w-full bg-white border-b border-gray-100 shadow-sm px-4 md:px-8 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img
-              src="/logo.png"
-              alt="KETE SHS"
-              className="h-10 w-10 object-contain"
-            />
-            <div>
-              <p className="text-[#0a6b1b] font-black text-sm uppercase tracking-wide leading-tight">
-                KETE-KRACHIE <span className="text-[#c8a84b]">NURSING</span>
-              </p>
-              <p className="text-gray-400 text-[10px] tracking-widest uppercase">
-                Student Voting Portal
-              </p>
-            </div>
+        <div className="max-w-4xl mx-auto flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt="Logo"
+            className="h-10 w-10 object-contain"
+          />
+          <div>
+            <p className="text-[#0a6b1b] font-black text-sm uppercase tracking-wide leading-tight">
+              KETE-KRACHIE <span className="text-[#c8a84b]">NURSING</span>
+            </p>
+            <p className="text-gray-400 text-[10px] tracking-widest uppercase">
+              Student Voting Portal
+            </p>
           </div>
         </div>
       </header>
 
-      {/* ── Main Content ── */}
       <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
-          {/* ════════════════════════════════
-              LOADING PERIOD CHECK
-          ════════════════════════════════ */}
+          {/* ── Loading ── */}
           {periodLoading ? (
             <div className="bg-white border border-gray-100 shadow-xl px-8 py-16 flex flex-col items-center gap-4">
               <Spinner className="w-6 h-6 text-[#0a6b1b]" />
               <p className="text-gray-400 text-sm">Checking election status…</p>
             </div>
           ) : !votingOpen ? (
-            /* ════════════════════════════════
-                VOTING CLOSED STATE
-            ════════════════════════════════ */
+            /* ── Voting Closed ── */
             <div
               className={`bg-white border border-gray-100 shadow-xl ${shaking ? "shake" : ""}`}
             >
-              {/* Header */}
               <div className="bg-gray-700 px-6 py-6 text-center">
                 <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-3">
                   <LockOutlinedIcon
@@ -213,18 +191,14 @@ const VoteLogin = () => {
               </div>
 
               <div className="px-6 py-8 flex flex-col gap-5">
-                {/* Status message */}
                 {electionPeriod?.startDate ? (
                   (() => {
                     const now = new Date();
-                    const start = new Date(
-                      `${electionPeriod.startDate}T${electionPeriod.startTime}`,
-                    );
-                    const end = new Date(
-                      `${electionPeriod.endDate}T${electionPeriod.endTime}`,
-                    );
-                    const hasEnded = now > end;
-
+                    const hasEnded =
+                      now >
+                      new Date(
+                        `${electionPeriod.endDate}T${electionPeriod.endTime}`,
+                      );
                     return (
                       <div
                         className={`border-l-4 px-4 py-4 ${hasEnded ? "bg-red-50 border-red-400" : "bg-amber-50 border-amber-400"}`}
@@ -237,7 +211,7 @@ const VoteLogin = () => {
                             : "Election hasn't started yet"}
                         </p>
                         <p
-                          className={`text-xs leading-relaxed ${hasEnded ? "text-red-600" : "text-amber-600"}`}
+                          className={`text-xs ${hasEnded ? "text-red-600" : "text-amber-600"}`}
                         >
                           {hasEnded
                             ? "Voting has closed. Results are being tallied."
@@ -248,19 +222,15 @@ const VoteLogin = () => {
                   })()
                 ) : (
                   <div className="bg-gray-50 border-l-4 border-gray-300 px-4 py-4">
-                    <p className="text-gray-600 font-bold text-sm mb-1">
+                    <p className="text-gray-600 font-bold text-sm">
                       No election scheduled
-                    </p>
-                    <p className="text-gray-500 text-xs">
-                      The election period has not been configured yet.
                     </p>
                   </div>
                 )}
 
-                {/* Period info */}
                 {electionPeriod?.startDate && (
-                  <div className="bg-gray-50 border border-gray-100 p-4 flex flex-col gap-3">
-                    <div className="flex items-center gap-2 mb-1">
+                  <div className="bg-gray-50 border border-gray-100 p-4">
+                    <div className="flex items-center gap-2 mb-3">
                       <AccessTimeOutlinedIcon
                         style={{ fontSize: 16 }}
                         className="text-[#0a6b1b]"
@@ -274,7 +244,7 @@ const VoteLogin = () => {
                         <p className="text-gray-400 text-[10px] uppercase tracking-widest font-bold mb-1">
                           Opens
                         </p>
-                        <p className="text-gray-700 text-xs font-semibold leading-relaxed">
+                        <p className="text-gray-700 text-xs font-semibold">
                           {formatDateTime(
                             electionPeriod.startDate,
                             electionPeriod.startTime,
@@ -285,7 +255,7 @@ const VoteLogin = () => {
                         <p className="text-gray-400 text-[10px] uppercase tracking-widest font-bold mb-1">
                           Closes
                         </p>
-                        <p className="text-gray-700 text-xs font-semibold leading-relaxed">
+                        <p className="text-gray-700 text-xs font-semibold">
                           {formatDateTime(
                             electionPeriod.endDate,
                             electionPeriod.endTime,
@@ -295,23 +265,19 @@ const VoteLogin = () => {
                     </div>
                   </div>
                 )}
-
                 <p className="text-center text-gray-400 text-xs">
-                  Please contact your election administrator if you believe this
-                  is an error.
+                  Contact your election administrator if you believe this is an
+                  error.
                 </p>
               </div>
             </div>
           ) : (
-            /* ════════════════════════════════
-                VOTING OPEN — LOGIN FORM
-            ════════════════════════════════ */
+            /* ── Voting Open — Login Form ── */
             <div
               className={`bg-white border border-gray-100 shadow-xl ${shaking ? "shake" : ""}`}
             >
-              {/* Header */}
               <div className="bg-[#0a6b1b] px-6 py-6 text-center">
-                <div className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-3">
+                <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-3">
                   <HowToVoteOutlinedIcon
                     style={{ fontSize: 28 }}
                     className="text-white"
@@ -324,13 +290,13 @@ const VoteLogin = () => {
                   Voter Verification
                 </h1>
                 <p className="text-white/70 text-xs">
-                  Enter your Student ID to begin voting
+                  Enter your Student ID and OTP to begin voting
                 </p>
               </div>
 
-              {/* Body */}
               <div className="px-6 py-8">
                 <form onSubmit={handleVerify} className="flex flex-col gap-5">
+                  {/* Student ID */}
                   <div className="flex flex-col gap-2">
                     <label className="text-[#0a6b1b] text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
                       <PersonOutlineOutlinedIcon style={{ fontSize: 14 }} />
@@ -352,26 +318,54 @@ const VoteLogin = () => {
                           : "border-gray-200 focus:border-[#0a6b1b]"
                       }`}
                     />
-                    {error && (
-                      <div className="flex items-start gap-2 text-red-500 text-xs bg-red-50 border border-red-100 px-3 py-2.5 rounded">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 mt-1" />
-                        <p>{error}</p>
-                      </div>
-                    )}
                   </div>
+
+                  {/* OTP */}
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[#0a6b1b] text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
+                      <KeyOutlinedIcon style={{ fontSize: 14 }} />
+                      One-Time Password (OTP)
+                    </label>
+                    <input
+                      type="text"
+                      value={otp}
+                      onChange={(e) => {
+                        setOtp(e.target.value.toUpperCase().slice(0, 5));
+                        setError("");
+                      }}
+                      placeholder="e.g. A3X9K"
+                      disabled={loading}
+                      maxLength={5}
+                      className={`border-2 outline-none px-4 py-3.5 text-sm text-gray-700 placeholder-gray-300 font-mono tracking-[0.3em] transition-colors ${
+                        error
+                          ? "border-red-400 bg-red-50"
+                          : "border-gray-200 focus:border-[#0a6b1b]"
+                      }`}
+                    />
+                    <p className="text-gray-400 text-[10px]">
+                      Your OTP was provided by the election administrator.
+                    </p>
+                  </div>
+
+                  {/* Error */}
+                  {error && (
+                    <div className="flex items-start gap-2 text-red-500 text-xs bg-red-50 border border-red-100 px-3 py-2.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 mt-1" />
+                      <p>{error}</p>
+                    </div>
+                  )}
 
                   <button
                     type="submit"
-                    disabled={loading || !voterId.trim()}
+                    disabled={loading || !voterId.trim() || otp.length !== 5}
                     className="w-full bg-[#0a6b1b] hover:bg-[#c8a84b] disabled:opacity-50 text-white font-black text-xs uppercase tracking-widest py-4 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
                   >
                     {loading ? (
                       <>
-                        <Spinner />
-                        Verifying…
+                        <Spinner /> Verifying…
                       </>
                     ) : (
-                      "Verify ID →"
+                      "Verify & Continue →"
                     )}
                   </button>
                 </form>
@@ -379,7 +373,6 @@ const VoteLogin = () => {
             </div>
           )}
 
-          {/* Info footer — only show when voting is open */}
           {!periodLoading && votingOpen && (
             <div className="mt-6 text-center">
               <p className="text-gray-400 text-xs leading-relaxed">

@@ -1,5 +1,6 @@
 import Voter from "../models/Voter.js";
 import Candidate from "../models/Candidate.js";
+import Settings from "../models/Settings.js"; // add this import at top
 
 // ─────────────────────────────────────
 // GET /api/voters
@@ -192,6 +193,48 @@ export const markVoted = async (req, res) => {
       .json({ message: "Vote recorded successfully.", voter });
   } catch (err) {
     console.error("markVoted error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const verifyVoterOtp = async (req, res) => {
+  try {
+    const { studentId, otp } = req.body;
+
+    if (!studentId || !otp)
+      return res
+        .status(400)
+        .json({ message: "Student ID and OTP are required." });
+
+    // 1. Find voter (case-insensitive)
+    const voter = await Voter.findOne({
+      studentId: { $regex: `^${studentId.trim()}$`, $options: "i" },
+    });
+    if (!voter)
+      return res
+        .status(404)
+        .json({ message: "Voter ID not found. Please check and try again." });
+    if (voter.hasVoted)
+      return res.status(400).json({ message: "You have already voted." });
+
+    // 2. Find a matching unused OTP
+    const settings = await Settings.findOne({ singleton: "global" });
+    const otpEntry = settings?.otps?.find(
+      (o) => o.code === otp.trim().toUpperCase() && !o.used,
+    );
+
+    if (!otpEntry)
+      return res.status(400).json({ message: "Invalid or already used OTP." });
+
+    // 3. Mark OTP as used (atomic update)
+    await Settings.updateOne(
+      { singleton: "global", "otps._id": otpEntry._id },
+      { $set: { "otps.$.used": true } },
+    );
+
+    return res.status(200).json({ voter });
+  } catch (err) {
+    console.error("verifyVoterOtp error:", err);
     return res.status(500).json({ message: "Server error" });
   }
 };
