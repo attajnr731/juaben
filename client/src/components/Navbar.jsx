@@ -12,6 +12,7 @@ import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
 import BubbleChartOutlinedIcon from "@mui/icons-material/BubbleChartOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import KeyOutlinedIcon from "@mui/icons-material/KeyOutlined";
 
 const API_BASE = "https://juaben.onrender.com/api";
 
@@ -252,6 +253,11 @@ const Navbar = ({ onMenuToggle }) => {
                     icon: <SettingsOutlinedIcon style={{ fontSize: 16 }} />,
                     label: "Settings",
                     to: "/admin/settings",
+                  },
+                  {
+                    icon: <KeyOutlinedIcon style={{ fontSize: 16 }} />, // ← NEW
+                    label: "OTP Manager", // ← NEW
+                    to: "/admin/otp", // ← NEW
                   },
                 ].map((item) => (
                   <li key={item.label}>

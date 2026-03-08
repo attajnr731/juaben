@@ -19,6 +19,7 @@ import LiveVoting from "./pages/LiveVoting";
 import RootLayout from "./layout/RootLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import VotingProtectedRoute from "./components/VotingProtectedRoute";
+import OtpManager from "./pages/OtpManager";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -45,6 +46,7 @@ const App = () => {
             <Route path="live-voting" element={<LiveVoting />} />
             <Route path="profile" element={<Profile />} />
             <Route path="results" element={<Results />} />
+            <Route path="otp" element={<OtpManager />} />
           </Route>
         </Route>
       </>,
