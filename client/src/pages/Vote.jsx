@@ -397,21 +397,23 @@ const Vote = () => {
                         <button
                           key={c._id}
                           onClick={() => handleSelect(posIndex, c._id)}
-                          className={`group relative p-6 border-2 transition-all duration-300 hover:shadow-xl ${
+                          className={`group relative p-6 transition-all duration-300 hover:shadow-xl ${
                             isSelected
-                              ? "border-[#1cb507] bg-[#0a6b1b]/5 shadow-lg"
-                              : "border-gray-200 bg-white hover:border-[#c8a84b]"
+                              ? "border-[3px] border-green-500 bg-green-50/40 shadow-lg"
+                              : "border-2 border-gray-200 bg-white hover:border-[#c8a84b]"
                           }`}
                         >
-                          <div className="absolute top-4 right-4 hidden">
+                          <div className="absolute top-3 right-3">
                             {isSelected ? (
-                              <CheckCircleOutlineOutlinedIcon
-                                style={{ fontSize: 28 }}
-                                className="text-[#0a6b1b]"
-                              />
+                              <div className="w-7 h-7 rounded-full bg-green-500 flex items-center justify-center shadow-md">
+                                <CheckCircleOutlineOutlinedIcon
+                                  style={{ fontSize: 20 }}
+                                  className="text-white"
+                                />
+                              </div>
                             ) : (
                               <RadioButtonUncheckedOutlinedIcon
-                                style={{ fontSize: 28 }}
+                                style={{ fontSize: 26 }}
                                 className="text-gray-200 group-hover:text-gray-300"
                               />
                             )}
