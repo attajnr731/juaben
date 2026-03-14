@@ -53,7 +53,7 @@ const OtpManager = () => {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [clearLoading, setClearLoading] = useState(false);
-  const [lastOtp, setLastOtp] = useState("");
+  const [lastOtps, setLastOtps] = useState([]);
   const [copiedId, setCopiedId] = useState(null); // tracks which OTP was copied
   const [status, setStatus] = useState({ status: "", message: "" });
 
@@ -84,7 +84,7 @@ const OtpManager = () => {
   // ── Generate one OTP ──
   const generate = async () => {
     setGenerating(true);
-    setLastOtp("");
+    setLastOtps([]);
     try {
       const res = await fetch(`${API}/settings/otp/generate`, {
         method: "POST",
@@ -92,10 +92,10 @@ const OtpManager = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
-      setLastOtp(data.code);
+      setLastOtps(data.codes); // array of 10 codes
       await fetchOtps();
     } catch (err) {
-      showStatus("error", err.message || "Failed to generate OTP.");
+      showStatus("error", err.message || "Failed to generate OTPs.");
     } finally {
       setGenerating(false);
     }
@@ -111,7 +111,7 @@ const OtpManager = () => {
       });
       if (!res.ok) throw new Error();
       await fetchOtps();
-      setLastOtp(""); // hide last-OTP banner if it was used
+      setLastOtps([]);
       showStatus("success", "Used OTPs cleared.");
     } catch {
       showStatus("error", "Failed to clear used OTPs.");
@@ -219,30 +219,37 @@ const OtpManager = () => {
         {status.message && <StatusPill {...status} />}
 
         {/* ── Last Generated OTP Banner ── */}
-        {lastOtp && (
-          <div className="border-2 border-[#c8a84b] bg-amber-50 px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-5">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-2">
-                ✦ Newly Generated — Share with voter immediately
-              </p>
-              <p className="text-[#0a6b1b] font-black text-5xl tracking-[0.5em] font-mono">
-                {lastOtp}
-              </p>
+        {lastOtps.length > 0 && (
+          <div className="border-2 border-[#c8a84b] bg-amber-50 px-6 py-5">
+            <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-4">
+              ✦ Newly Generated — Share with voters immediately
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              {lastOtps.map((code) => (
+                <div
+                  key={code}
+                  className="flex items-center justify-between border border-[#c8a84b] bg-white px-3 py-2"
+                >
+                  <span className="text-[#0a6b1b] font-black tracking-widest font-mono text-sm">
+                    {code}
+                  </span>
+                  <button
+                    onClick={() => copyCode(code, code)}
+                    className="ml-2 text-gray-300 hover:text-[#0a6b1b] transition-colors"
+                    title="Copy"
+                  >
+                    {copiedId === code ? (
+                      <CheckOutlinedIcon
+                        style={{ fontSize: 14 }}
+                        className="text-green-500"
+                      />
+                    ) : (
+                      <ContentCopyOutlinedIcon style={{ fontSize: 14 }} />
+                    )}
+                  </button>
+                </div>
+              ))}
             </div>
-            <button
-              onClick={() => copyCode(lastOtp, "last")}
-              className="flex items-center gap-2 border-2 border-[#0a6b1b] text-[#0a6b1b] hover:bg-[#0a6b1b] hover:text-white px-6 py-3 text-xs font-black uppercase tracking-widest transition-all shrink-0"
-            >
-              {copiedId === "last" ? (
-                <>
-                  <CheckOutlinedIcon style={{ fontSize: 15 }} /> Copied!
-                </>
-              ) : (
-                <>
-                  <ContentCopyOutlinedIcon style={{ fontSize: 15 }} /> Copy OTP
-                </>
-              )}
-            </button>
           </div>
         )}
 

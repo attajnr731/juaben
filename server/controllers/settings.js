@@ -127,17 +127,24 @@ export const deleteElectionData = async (req, res) => {
 export const generateOtp = async (req, res) => {
   try {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let code = "";
-    for (let i = 0; i < 5; i++)
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    const codes = [];
+
+    for (let j = 0; j < 10; j++) {
+      let code = "";
+      for (let i = 0; i < 5; i++)
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      codes.push({ code, used: false, createdAt: new Date() });
+    }
 
     await Settings.findOneAndUpdate(
       { singleton: "global" },
-      { $push: { otps: { code, used: false, createdAt: new Date() } } },
+      { $push: { otps: { $each: codes } } }, // $each pushes all 10 at once
       { upsert: true, new: true },
     );
 
-    return res.status(201).json({ message: "OTP generated.", code });
+    return res
+      .status(201)
+      .json({ message: "OTPs generated.", codes: codes.map((c) => c.code) });
   } catch (err) {
     console.error("generateOtp error:", err);
     return res.status(500).json({ message: "Server error" });
