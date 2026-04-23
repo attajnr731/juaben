@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
+import * as XLSX from "xlsx";
 import KeyOutlinedIcon from "@mui/icons-material/KeyOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import ContentCopyOutlinedIcon from "@mui/icons-material/ContentCopyOutlined";
 import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 
 const API = "https://juaben.onrender.com/api";
 
@@ -111,6 +113,7 @@ const OtpManager = () => {
       });
       if (!res.ok) throw new Error();
       await fetchOtps();
+
       setLastOtps([]);
       showStatus("success", "Used OTPs cleared.");
     } catch {
@@ -118,6 +121,45 @@ const OtpManager = () => {
     } finally {
       setClearLoading(false);
     }
+  };
+
+  // ── Export unused OTPs to Excel (10 per row, bordered) ──
+  const exportToExcel = () => {
+    const unused = [...otpList].reverse().filter((o) => !o.used).map((o) => o.code);
+    const COLS = 10;
+    const rows = [];
+    for (let i = 0; i < unused.length; i += COLS) {
+      rows.push(unused.slice(i, i + COLS));
+    }
+
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+
+    const border = {
+      top: { style: "thin", color: { rgb: "000000" } },
+      bottom: { style: "thin", color: { rgb: "000000" } },
+      left: { style: "thin", color: { rgb: "000000" } },
+      right: { style: "thin", color: { rgb: "000000" } },
+    };
+
+    const totalRows = rows.length;
+    for (let r = 0; r < totalRows; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const addr = XLSX.utils.encode_cell({ r, c });
+        if (!ws[addr]) ws[addr] = { t: "z", v: "" };
+        ws[addr].s = {
+          border,
+          font: { bold: true, name: "Courier New", sz: 13 },
+          alignment: { horizontal: "center", vertical: "center" },
+        };
+      }
+    }
+
+    ws["!cols"] = Array(COLS).fill({ wch: 12 });
+    ws["!rows"] = Array(totalRows).fill({ hpt: 28 });
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "OTPs");
+    XLSX.writeFile(wb, `OTPs_${new Date().toISOString().slice(0, 10)}.xlsx`, { cellStyles: true });
   };
 
   // ── Copy an OTP code ──
@@ -197,6 +239,15 @@ const OtpManager = () => {
               className={loading ? "animate-spin" : ""}
             />
             Refresh
+          </button>
+
+          <button
+            onClick={exportToExcel}
+            disabled={unusedCount === 0}
+            className="flex items-center gap-2 px-5 py-3 text-xs font-bold uppercase tracking-widest border border-gray-300 text-gray-500 hover:border-[#0a6b1b] hover:text-[#0a6b1b] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          >
+            <FileDownloadOutlinedIcon style={{ fontSize: 15 }} />
+            Export OTPs ({unusedCount})
           </button>
 
           <div className="sm:ml-auto">
