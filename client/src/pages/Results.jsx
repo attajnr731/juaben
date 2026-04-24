@@ -30,32 +30,18 @@ const exportResults = ({ positions, candidates, voters }) => {
 
   // ── Sheet 1: Summary ──
   const votedCount = voters.filter((v) => v.hasVoted).length;
-  const byPos = candidates.reduce((acc, c) => {
-    if (!acc[c.position]) acc[c.position] = [];
-    acc[c.position].push(c);
-    return acc;
-  }, {});
-  const exportPositionTotals = Object.values(byPos).map((cands) =>
-    cands.reduce((s, c) => s + (c.voteCount || 0), 0),
-  );
-  const exportEffectiveVoted =
-    exportPositionTotals.length > 0
-      ? Math.max(votedCount, ...exportPositionTotals)
-      : votedCount;
   const turnout =
-    voters.length > 0
-      ? ((exportEffectiveVoted / voters.length) * 100).toFixed(1)
-      : "0.0";
+    voters.length > 0 ? ((votedCount / voters.length) * 100).toFixed(1) : "0.0";
 
   const summaryRows = [
     { Metric: "Election Date", Value: date },
     { Metric: "Total Positions", Value: positions.length },
     { Metric: "Total Candidates", Value: candidates.length },
     { Metric: "Total Registered Voters", Value: voters.length },
-    { Metric: "Voters Who Voted", Value: exportEffectiveVoted },
-    { Metric: "Pending Voters", Value: Math.max(0, voters.length - exportEffectiveVoted) },
+    { Metric: "Voters Who Voted", Value: votedCount },
+    { Metric: "Pending Voters", Value: voters.length - votedCount },
     { Metric: "Voter Turnout", Value: `${turnout}%` },
-    { Metric: "Total Votes Cast", Value: exportEffectiveVoted },
+    { Metric: "Total Votes Cast", Value: votedCount },
   ];
 
   const wsSummary = XLSX.utils.json_to_sheet(summaryRows);
@@ -235,22 +221,8 @@ const Results = () => {
   const totalVotes = candidates.reduce((s, c) => s + (c.voteCount || 0), 0);
   const votedCount = voters.filter((v) => v.hasVoted).length;
 
-  // Use the highest position total as ground truth — hasVoted was sometimes
-  // not written when candidate votes were already recorded (network race bug).
-  const allPositionTotals = Object.values(
-    candidates.reduce((acc, c) => {
-      if (!acc[c.position]) acc[c.position] = [];
-      acc[c.position].push(c);
-      return acc;
-    }, {}),
-  ).map((cands) => cands.reduce((s, c) => s + (c.voteCount || 0), 0));
-  const effectiveVotedCount =
-    allPositionTotals.length > 0
-      ? Math.max(votedCount, ...allPositionTotals)
-      : votedCount;
-
   const turnout =
-    voters.length > 0 ? Math.round((effectiveVotedCount / voters.length) * 100) : 0;
+    voters.length > 0 ? Math.round((votedCount / voters.length) * 100) : 0;
 
   // Get selected position data
   const selectedCandidates = candidates
@@ -272,7 +244,7 @@ const Results = () => {
     ? selectedCandidates.filter((c) => c.voteCount === topVoteCount)
     : [];
   // Add this after selectedWinner
-  const totalForPosition = Math.max(selectedTotalVotes, effectiveVotedCount);
+  const totalForPosition = Math.max(selectedTotalVotes, votedCount);
   const skippedVotes = Math.max(0, totalForPosition - selectedTotalVotes);
   const hasVotes = selectedTotalVotes > 0;
 
@@ -355,7 +327,7 @@ const Results = () => {
                 />
                 <span className="text-sm text-gray-600">
                   <span className="font-black text-[#0a6b1b] text-base">
-                    {effectiveVotedCount}
+                    {votedCount}
                   </span>{" "}
                   votes
                 </span>
@@ -451,8 +423,8 @@ const Results = () => {
               {selectedPosition}
             </h2>
             <p className="text-gray-400 text-sm">
-              {selectedTotalVotes} vote
-              {selectedTotalVotes !== 1 ? "s" : ""} cast
+              {Math.min(selectedTotalVotes, votedCount)} vote
+              {Math.min(selectedTotalVotes, votedCount) !== 1 ? "s" : ""} cast
             </p>
           </div>
 

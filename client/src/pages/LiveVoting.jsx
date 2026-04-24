@@ -123,25 +123,19 @@ const Spinner = () => (
 const LiveVoting = () => {
   const [loading, setLoading] = useState(true);
   const [voters, setVoters] = useState([]);
-  const [candidates, setCandidates] = useState([]);
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
-      const [votersRes, candidatesRes] = await Promise.all([
-        fetch(`${API}/voters`, { headers: authHeaders() }),
-        fetch(`${API}/candidates`, { headers: authHeaders() }),
-      ]);
-      const [votersData, candidatesData] = await Promise.all([
-        votersRes.json(),
-        candidatesRes.json(),
-      ]);
-      if (votersRes.ok) setVoters(votersData);
-      if (candidatesRes.ok) setCandidates(candidatesData);
-      setLastUpdate(new Date());
+      const res = await fetch(`${API}/voters`, { headers: authHeaders() });
+      const data = await res.json();
+      if (res.ok) {
+        setVoters(data);
+        setLastUpdate(new Date());
+      }
     } catch (err) {
-      console.error("Failed to fetch live data:", err);
+      console.error("Failed to fetch voters:", err);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -171,25 +165,13 @@ const LiveVoting = () => {
   // Calculate stats
   const totalVoters = voters.length;
   const votedCount = voters.filter((v) => v.hasVoted).length;
-  const byPosition = candidates.reduce((acc, c) => {
-    if (!acc[c.position]) acc[c.position] = [];
-    acc[c.position].push(c);
-    return acc;
-  }, {});
-  const positionTotals = Object.values(byPosition).map((cands) =>
-    cands.reduce((s, c) => s + (c.voteCount || 0), 0),
-  );
-  const effectiveVotedCount =
-    positionTotals.length > 0
-      ? Math.max(votedCount, ...positionTotals)
-      : votedCount;
-  const pendingCount = Math.max(0, totalVoters - effectiveVotedCount);
+  const pendingCount = totalVoters - votedCount;
   const turnoutPercent =
-    totalVoters > 0 ? Math.round((effectiveVotedCount / totalVoters) * 100) : 0;
+    totalVoters > 0 ? Math.round((votedCount / totalVoters) * 100) : 0;
 
   // Pie chart data
   const pieData = [
-    { name: "Voted", value: effectiveVotedCount, color: "#16a34a", total: totalVoters },
+    { name: "Voted", value: votedCount, color: "#16a34a", total: totalVoters },
     {
       name: "Not Voted",
       value: pendingCount,
@@ -320,7 +302,7 @@ const LiveVoting = () => {
                     </span>
                   </div>
                   <span className="text-[#0a6b1b] font-black text-xl">
-                    {effectiveVotedCount}
+                    {votedCount}
                   </span>
                 </div>
                 <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden">
@@ -366,7 +348,7 @@ const LiveVoting = () => {
               </p>
               <p className="text-4xl font-black mb-2">{turnoutPercent}%</p>
               <p className="text-white/80 text-sm">
-                {effectiveVotedCount} out of {totalVoters} voters have cast their ballots
+                {votedCount} out of {totalVoters} voters have cast their ballots
               </p>
               {turnoutPercent >= 75 && (
                 <div className="mt-4 flex items-center gap-2 text-green-400 text-xs font-bold">
