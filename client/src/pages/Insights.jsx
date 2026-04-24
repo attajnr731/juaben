@@ -159,9 +159,6 @@ const Insights = () => {
   // ── Computed metrics ──
   const totalVoters = voters.length;
   const votedCount = voters.filter((v) => v.hasVoted).length;
-  const pendingCount = totalVoters - votedCount;
-  const turnoutPercent =
-    totalVoters > 0 ? Math.round((votedCount / totalVoters) * 100) : 0;
   const totalCandidates = candidates.length;
   const totalVotes = candidates.reduce((s, c) => s + (c.voteCount || 0), 0);
 
@@ -171,6 +168,19 @@ const Insights = () => {
     acc[c.position].push(c);
     return acc;
   }, {});
+
+  // The hasVoted flag was sometimes not written when votes were cast (network race).
+  // The highest position total is the most accurate count of people who actually voted.
+  const positionTotals = Object.values(byPosition).map((cands) =>
+    cands.reduce((s, c) => s + (c.voteCount || 0), 0),
+  );
+  const effectiveVotedCount =
+    positionTotals.length > 0
+      ? Math.max(votedCount, ...positionTotals)
+      : votedCount;
+  const pendingCount = Math.max(0, totalVoters - effectiveVotedCount);
+  const turnoutPercent =
+    totalVoters > 0 ? Math.round((effectiveVotedCount / totalVoters) * 100) : 0;
 
   // Top 5 candidates overall
   const topCandidates = [...candidates]
@@ -358,14 +368,14 @@ const Insights = () => {
             icon={<PeopleOutlineOutlinedIcon style={{ fontSize: 26 }} />}
             label="Total Voters"
             value={totalVoters.toLocaleString()}
-            subtext={`${votedCount} voted, ${pendingCount} pending`}
+            subtext={`${effectiveVotedCount} voted, ${pendingCount} pending`}
             accent="#0a6b1b"
           />
           <StatCard
             icon={<HowToVoteOutlinedIcon style={{ fontSize: 26 }} />}
             label="Voter Turnout"
             value={`${turnoutPercent}%`}
-            subtext={`${votedCount} of ${totalVoters} voters`}
+            subtext={`${effectiveVotedCount} of ${totalVoters} voters`}
             accent="#16a34a"
             trend={turnoutPercent}
           />
@@ -379,7 +389,7 @@ const Insights = () => {
           <StatCard
             icon={<EmojiEventsOutlinedIcon style={{ fontSize: 26 }} />}
             label="Total Votes"
-            value={votedCount}
+            value={effectiveVotedCount}
             subtext={
               totalVotes > 0
                 ? `Avg ${Math.round(totalVotes / totalCandidates)} per candidate`
@@ -399,7 +409,7 @@ const Insights = () => {
             <div className="flex flex-col gap-6">
               <ProgressBar
                 label="Voters who have cast ballots"
-                value={votedCount}
+                value={effectiveVotedCount}
                 total={totalVoters}
                 color="#16a34a"
               />
@@ -424,7 +434,7 @@ const Insights = () => {
                       Voted
                     </p>
                     <p className="text-[#0a6b1b] text-xl font-black">
-                      {votedCount}
+                      {effectiveVotedCount}
                     </p>
                   </div>
                 </div>

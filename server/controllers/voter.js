@@ -197,6 +197,42 @@ export const markVoted = async (req, res) => {
   }
 };
 
+// ─────────────────────────────────────
+// POST /api/voters/:id/submit-votes
+// Atomically mark voter as voted and increment all candidate votes.
+// Prevents double-counting when the two-step client flow fails mid-way.
+// ─────────────────────────────────────
+export const submitVotes = async (req, res) => {
+  try {
+    const { candidateIds } = req.body;
+    if (!Array.isArray(candidateIds) || candidateIds.length === 0)
+      return res.status(400).json({ message: "No candidates provided." });
+
+    // Atomically mark the voter as voted only if they haven't yet.
+    const voter = await Voter.findOneAndUpdate(
+      { _id: req.params.id, hasVoted: false },
+      { $set: { hasVoted: true } },
+      { new: true },
+    );
+
+    if (!voter)
+      return res
+        .status(400)
+        .json({ message: "Voter not found or has already voted." });
+
+    // Increment all selected candidates in one query.
+    await Candidate.updateMany(
+      { _id: { $in: candidateIds } },
+      { $inc: { voteCount: 1 } },
+    );
+
+    return res.status(200).json({ message: "Votes submitted successfully." });
+  } catch (err) {
+    console.error("submitVotes error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 export const verifyVoterOtp = async (req, res) => {
   try {
     const { studentId, otp } = req.body;

@@ -192,22 +192,18 @@ const Vote = () => {
 
     setSubmitting(true);
     try {
-      const votes = Object.entries(selections)
-        .filter(([_, candidateId]) => candidateId !== null)
-        .map(([posIndex, candidateId]) => ({
-          position: positions[posIndex],
-          candidateId,
-        }));
+      const candidateIds = Object.values(selections).filter(Boolean);
 
-      await Promise.all(
-        votes.map((vote) =>
-          fetch(`${API}/candidates/${vote.candidateId}/vote`, {
-            method: "PATCH",
-          }),
-        ),
-      );
+      const res = await fetch(`${API}/voters/${voter._id}/submit-votes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ candidateIds }),
+      });
 
-      await fetch(`${API}/voters/${voter._id}/vote`, { method: "PATCH" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || "Vote submission failed.");
+      }
 
       navigate("/vote-success", { replace: true });
     } catch (err) {

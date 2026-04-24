@@ -289,7 +289,21 @@ const Candidates = () => {
       c.position.toLowerCase().includes(search.toLowerCase()),
   );
   const positionGroups = [...new Set(candidates.map((c) => c.position))];
-  const totalVotes = candidates.reduce((s, c) => s + (c.voteCount || 0), 0);
+
+  // Max votes in any single position = best estimate of people who actually voted
+  const byPositionAll = candidates.reduce((acc, c) => {
+    if (!acc[c.position]) acc[c.position] = [];
+    acc[c.position].push(c);
+    return acc;
+  }, {});
+  const effectiveVotedCount =
+    Object.values(byPositionAll).length > 0
+      ? Math.max(
+          ...Object.values(byPositionAll).map((cands) =>
+            cands.reduce((s, c) => s + (c.voteCount || 0), 0),
+          ),
+        )
+      : 0;
 
   const openAdd = () => {
     setEditTarget(null);
@@ -569,7 +583,7 @@ const Candidates = () => {
           <Stat
             icon={<HowToVoteOutlinedIcon style={{ fontSize: 22 }} />}
             label="Total Votes Cast"
-            value={loading ? "—" : totalVotes}
+            value={loading ? "—" : effectiveVotedCount}
             accent="#16a34a"
           />
         </div>
