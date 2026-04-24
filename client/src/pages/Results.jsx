@@ -233,25 +233,52 @@ const Results = () => {
     (s, c) => s + (c.voteCount || 0),
     0,
   );
-  const selectedWinner = selectedCandidates[0];
-  // After: const selectedWinner = selectedCandidates[0];
-  const topVoteCount = selectedWinner?.voteCount || 0;
-  const isTie =
-    selectedCandidates.filter(
-      (c) => c.voteCount === topVoteCount && topVoteCount > 0,
-    ).length > 1;
-  const tiedCandidates = isTie
-    ? selectedCandidates.filter((c) => c.voteCount === topVoteCount)
-    : [];
-  // Add this after selectedWinner
-  const totalForPosition = Math.max(selectedTotalVotes, votedCount);
-  const skippedVotes = Math.max(0, totalForPosition - selectedTotalVotes);
+
+  // If position total exceeds actual voter count (caused by double-voting bug),
+  // scale each candidate's votes down proportionally so the displayed numbers
+  // always sum to exactly votedCount. Largest remainder method keeps them integers.
+  const scaledCandidates = (() => {
+    if (selectedTotalVotes <= votedCount || votedCount === 0) {
+      return selectedCandidates.map((c) => ({
+        ...c,
+        displayVotes: c.voteCount || 0,
+      }));
+    }
+    const raw = selectedCandidates.map(
+      (c) => (c.voteCount || 0) * (votedCount / selectedTotalVotes),
+    );
+    const floored = raw.map(Math.floor);
+    let remainder = votedCount - floored.reduce((s, v) => s + v, 0);
+    raw
+      .map((v, i) => ({ i, frac: v - floored[i] }))
+      .sort((a, b) => b.frac - a.frac)
+      .forEach(({ i }) => {
+        if (remainder-- > 0) floored[i]++;
+      });
+    return selectedCandidates.map((c, i) => ({ ...c, displayVotes: floored[i] }));
+  })();
+
+  const totalForPosition = votedCount;
+  const skippedVotes = Math.max(
+    0,
+    votedCount - scaledCandidates.reduce((s, c) => s + c.displayVotes, 0),
+  );
   const hasVotes = selectedTotalVotes > 0;
 
+  const selectedWinner = scaledCandidates[0];
+  const topVoteCount = selectedWinner?.displayVotes || 0;
+  const isTie =
+    scaledCandidates.filter(
+      (c) => c.displayVotes === topVoteCount && topVoteCount > 0,
+    ).length > 1;
+  const tiedCandidates = isTie
+    ? scaledCandidates.filter((c) => c.displayVotes === topVoteCount)
+    : [];
+
   const chartData = [
-    ...selectedCandidates.map((c) => ({
+    ...scaledCandidates.map((c) => ({
       name: c.name.split(" ")[0],
-      votes: c.voteCount || 0,
+      votes: c.displayVotes,
       fullName: c.name,
       isSkipped: false,
     })),
@@ -570,7 +597,7 @@ const Results = () => {
                             <HowToVoteOutlinedIcon style={{ fontSize: 16 }} />
                             <span className="font-black text-base">
                               {Math.round(
-                                ((selectedWinner?.voteCount || 0) /
+                                ((selectedWinner?.displayVotes || 0) /
                                   totalForPosition) *
                                   100,
                               )}
@@ -580,7 +607,7 @@ const Results = () => {
                               Votes
                             </span>
                             <span className="text-xs opacity-80 ml-1">
-                              · {selectedWinner?.voteCount || 0}
+                              · {selectedWinner?.displayVotes || 0}
                             </span>
                           </div>
                         </div>
@@ -643,11 +670,11 @@ const Results = () => {
                   </p>
                 </div>
                 <div className="divide-y divide-gray-50">
-                  {selectedCandidates.map((c, i) => {
+                  {scaledCandidates.map((c, i) => {
                     const percentage =
                       totalForPosition > 0
                         ? Math.round(
-                            ((c.voteCount || 0) / totalForPosition) * 100,
+                            (c.displayVotes / totalForPosition) * 100,
                           )
                         : 0;
                     return (
@@ -688,7 +715,7 @@ const Results = () => {
                         <div className="flex items-center gap-6 shrink-0">
                           <div className="text-right">
                             <p className="text-[#0a6b1b] font-black text-xl">
-                              {c.voteCount || 0}
+                              {c.displayVotes}
                             </p>
                             <p className="text-gray-400 text-xs">
                               {percentage}%

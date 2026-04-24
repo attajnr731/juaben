@@ -173,9 +173,28 @@ const Insights = () => {
     return acc;
   }, {});
 
-  // Top 5 candidates overall
-  const topCandidates = [...candidates]
-    .sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0))
+  // Scale each position's votes down if they exceed votedCount (double-voting artifact)
+  const scaledByPosition = Object.fromEntries(
+    Object.entries(byPosition).map(([position, cands]) => {
+      const posTotal = cands.reduce((s, c) => s + (c.voteCount || 0), 0);
+      if (posTotal <= votedCount || votedCount === 0) {
+        return [position, cands.map((c) => ({ ...c, displayVotes: c.voteCount || 0 }))];
+      }
+      const raw = cands.map((c) => (c.voteCount || 0) * (votedCount / posTotal));
+      const floored = raw.map(Math.floor);
+      let remainder = votedCount - floored.reduce((s, v) => s + v, 0);
+      raw
+        .map((v, i) => ({ i, frac: v - floored[i] }))
+        .sort((a, b) => b.frac - a.frac)
+        .forEach(({ i }) => { if (remainder-- > 0) floored[i]++; });
+      return [position, cands.map((c, i) => ({ ...c, displayVotes: floored[i] }))];
+    }),
+  );
+
+  // Top 3 candidates by scaled votes
+  const topCandidates = Object.values(scaledByPosition)
+    .flat()
+    .sort((a, b) => b.displayVotes - a.displayVotes)
     .slice(0, 3);
 
   // Election status
@@ -489,7 +508,7 @@ const Insights = () => {
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-[#0a6b1b] font-black text-lg">
-                        {c.voteCount || 0}
+                        {c.displayVotes}
                       </p>
                       <p className="text-gray-400 text-[10px] uppercase tracking-widest">
                         votes
@@ -513,13 +532,13 @@ const Insights = () => {
             </p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {Object.entries(byPosition).map(([position, cands]) => {
+              {Object.entries(scaledByPosition).map(([position, cands]) => {
                 const positionVotes = cands.reduce(
-                  (s, c) => s + (c.voteCount || 0),
+                  (s, c) => s + c.displayVotes,
                   0,
                 );
-                const leader = cands.sort(
-                  (a, b) => (b.voteCount || 0) - (a.voteCount || 0),
+                const leader = [...cands].sort(
+                  (a, b) => b.displayVotes - a.displayVotes,
                 )[0];
                 return (
                   <div
@@ -545,7 +564,7 @@ const Insights = () => {
                       </div>
                       <div className="text-right shrink-0">
                         <p className="text-[#0a6b1b] font-black text-xl">
-                          {leader.voteCount || 0}
+                          {leader.displayVotes}
                         </p>
                       </div>
                     </div>
